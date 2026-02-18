@@ -1,0 +1,994 @@
+[
+  {
+    "table": "customers",
+    "column": "customer_id",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "customers.customer_id must never be null",
+    "generated_at": "2026-02-18T03:04:58.490777"
+  },
+  {
+    "table": "customers",
+    "column": "email",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "customers.email must never be null",
+    "generated_at": "2026-02-18T03:04:58.490795"
+  },
+  {
+    "table": "customers",
+    "column": "first_name",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "customers.first_name must never be null",
+    "generated_at": "2026-02-18T03:04:58.490800"
+  },
+  {
+    "table": "customers",
+    "column": "last_name",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "customers.last_name must never be null",
+    "generated_at": "2026-02-18T03:04:58.490803"
+  },
+  {
+    "table": "customers",
+    "column": "country",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "customers.country must never be null",
+    "generated_at": "2026-02-18T03:04:58.490807"
+  },
+  {
+    "table": "customers",
+    "column": "signup_date",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "customers.signup_date must never be null",
+    "generated_at": "2026-02-18T03:04:58.490811"
+  },
+  {
+    "table": "customers",
+    "column": "is_premium",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "customers.is_premium must never be null",
+    "generated_at": "2026-02-18T03:04:58.490814"
+  },
+  {
+    "table": "customers",
+    "column": "age_bucket",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "customers.age_bucket must never be null",
+    "generated_at": "2026-02-18T03:04:58.490817"
+  },
+  {
+    "table": "customers",
+    "column": "customer_id",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 100.0% (over 99% threshold)",
+    "plain_english": "customers.customer_id must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.490824"
+  },
+  {
+    "table": "customers",
+    "column": "country",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "AU",
+        "CA",
+        "DE",
+        "GB",
+        "US"
+      ]
+    },
+    "reason": "only 5 distinct values found \u2014 treating as categorical",
+    "plain_english": "customers.country must only contain: ['AU', 'CA', 'DE', 'GB', 'US']",
+    "generated_at": "2026-02-18T03:04:58.490834"
+  },
+  {
+    "table": "customers",
+    "column": "is_premium",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "False",
+        "True"
+      ]
+    },
+    "reason": "only 2 distinct values found \u2014 treating as categorical",
+    "plain_english": "customers.is_premium must only contain: ['False', 'True']",
+    "generated_at": "2026-02-18T03:04:58.490838"
+  },
+  {
+    "table": "customers",
+    "column": "age_bucket",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "18-24",
+        "25-34",
+        "35-44",
+        "45-54",
+        "55+"
+      ]
+    },
+    "reason": "only 5 distinct values found \u2014 treating as categorical",
+    "plain_english": "customers.age_bucket must only contain: ['18-24', '25-34', '35-44', '45-54', '55+']",
+    "generated_at": "2026-02-18T03:04:58.490841"
+  },
+  {
+    "table": "customers",
+    "column": "__row_count__",
+    "test_type": "row_count_between",
+    "parameters": {
+      "min_rows": 4000,
+      "max_rows": 6000
+    },
+    "reason": "historical mean row count is 5,000 (\u00b120% buffer)",
+    "plain_english": "customers row count must be between 4,000 and 6,000",
+    "generated_at": "2026-02-18T03:04:58.496582"
+  },
+  {
+    "table": "products",
+    "column": "product_id",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "products.product_id must never be null",
+    "generated_at": "2026-02-18T03:04:58.523083"
+  },
+  {
+    "table": "products",
+    "column": "product_name",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "products.product_name must never be null",
+    "generated_at": "2026-02-18T03:04:58.523096"
+  },
+  {
+    "table": "products",
+    "column": "category",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "products.category must never be null",
+    "generated_at": "2026-02-18T03:04:58.523101"
+  },
+  {
+    "table": "products",
+    "column": "sub_category",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "products.sub_category must never be null",
+    "generated_at": "2026-02-18T03:04:58.523106"
+  },
+  {
+    "table": "products",
+    "column": "unit_price",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "products.unit_price must never be null",
+    "generated_at": "2026-02-18T03:04:58.523109"
+  },
+  {
+    "table": "products",
+    "column": "cost_price",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "products.cost_price must never be null",
+    "generated_at": "2026-02-18T03:04:58.523113"
+  },
+  {
+    "table": "products",
+    "column": "stock_qty",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "products.stock_qty must never be null",
+    "generated_at": "2026-02-18T03:04:58.523116"
+  },
+  {
+    "table": "products",
+    "column": "is_active",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "products.is_active must never be null",
+    "generated_at": "2026-02-18T03:04:58.523119"
+  },
+  {
+    "table": "products",
+    "column": "created_at",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "products.created_at must never be null",
+    "generated_at": "2026-02-18T03:04:58.523123"
+  },
+  {
+    "table": "products",
+    "column": "product_id",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 100.0% (over 99% threshold)",
+    "plain_english": "products.product_id must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.523129"
+  },
+  {
+    "table": "products",
+    "column": "product_name",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 99.8% (over 99% threshold)",
+    "plain_english": "products.product_name must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.523133"
+  },
+  {
+    "table": "products",
+    "column": "unit_price",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 99.4% (over 99% threshold)",
+    "plain_english": "products.unit_price must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.523137"
+  },
+  {
+    "table": "products",
+    "column": "category",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "Books",
+        "Clothing",
+        "Electronics",
+        "Home & Garden",
+        "Sports",
+        "Toys"
+      ]
+    },
+    "reason": "only 6 distinct values found \u2014 treating as categorical",
+    "plain_english": "products.category must only contain: ['Books', 'Clothing', 'Electronics', 'Home & Garden', 'Sports', 'Toys']",
+    "generated_at": "2026-02-18T03:04:58.523143"
+  },
+  {
+    "table": "products",
+    "column": "is_active",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "False",
+        "True"
+      ]
+    },
+    "reason": "only 2 distinct values found \u2014 treating as categorical",
+    "plain_english": "products.is_active must only contain: ['False', 'True']",
+    "generated_at": "2026-02-18T03:04:58.523147"
+  },
+  {
+    "table": "products",
+    "column": "__row_count__",
+    "test_type": "row_count_between",
+    "parameters": {
+      "min_rows": 400,
+      "max_rows": 600
+    },
+    "reason": "historical mean row count is 500 (\u00b120% buffer)",
+    "plain_english": "products row count must be between 400 and 600",
+    "generated_at": "2026-02-18T03:04:58.527114"
+  },
+  {
+    "table": "products",
+    "column": "unit_price",
+    "test_type": "value_between",
+    "parameters": {
+      "min_value": -187.3175,
+      "max_value": 986.1475
+    },
+    "reason": "historical range was [8.26, 790.57] (\u00b125% buffer added)",
+    "plain_english": "products.unit_price values must be between -187.3175 and 986.1475",
+    "generated_at": "2026-02-18T03:04:58.527176"
+  },
+  {
+    "table": "products",
+    "column": "cost_price",
+    "test_type": "value_between",
+    "parameters": {
+      "min_value": -100.705,
+      "max_value": 527.765
+    },
+    "reason": "historical range was [4.04, 423.02] (\u00b125% buffer added)",
+    "plain_english": "products.cost_price values must be between -100.705 and 527.765",
+    "generated_at": "2026-02-18T03:04:58.527189"
+  },
+  {
+    "table": "products",
+    "column": "stock_qty",
+    "test_type": "value_between",
+    "parameters": {
+      "min_value": -495.25,
+      "max_value": 2494.25
+    },
+    "reason": "historical range was [3, 1996] (\u00b125% buffer added)",
+    "plain_english": "products.stock_qty values must be between -495.25 and 2494.25",
+    "generated_at": "2026-02-18T03:04:58.527197"
+  },
+  {
+    "table": "orders",
+    "column": "order_id",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "orders.order_id must never be null",
+    "generated_at": "2026-02-18T03:04:58.563754"
+  },
+  {
+    "table": "orders",
+    "column": "customer_id",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "orders.customer_id must never be null",
+    "generated_at": "2026-02-18T03:04:58.563767"
+  },
+  {
+    "table": "orders",
+    "column": "order_status",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "orders.order_status must never be null",
+    "generated_at": "2026-02-18T03:04:58.563772"
+  },
+  {
+    "table": "orders",
+    "column": "channel",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "orders.channel must never be null",
+    "generated_at": "2026-02-18T03:04:58.563775"
+  },
+  {
+    "table": "orders",
+    "column": "created_at",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "orders.created_at must never be null",
+    "generated_at": "2026-02-18T03:04:58.563781"
+  },
+  {
+    "table": "orders",
+    "column": "updated_at",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "orders.updated_at must never be null",
+    "generated_at": "2026-02-18T03:04:58.563785"
+  },
+  {
+    "table": "orders",
+    "column": "shipping_country",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "orders.shipping_country must never be null",
+    "generated_at": "2026-02-18T03:04:58.563789"
+  },
+  {
+    "table": "orders",
+    "column": "order_total",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "orders.order_total must never be null",
+    "generated_at": "2026-02-18T03:04:58.563792"
+  },
+  {
+    "table": "orders",
+    "column": "order_id",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 100.0% (over 99% threshold)",
+    "plain_english": "orders.order_id must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.563799"
+  },
+  {
+    "table": "orders",
+    "column": "created_at",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 100.0% (over 99% threshold)",
+    "plain_english": "orders.created_at must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.563803"
+  },
+  {
+    "table": "orders",
+    "column": "updated_at",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 100.0% (over 99% threshold)",
+    "plain_english": "orders.updated_at must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.563807"
+  },
+  {
+    "table": "orders",
+    "column": "order_status",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "cancelled",
+        "confirmed",
+        "delivered",
+        "pending",
+        "refunded",
+        "shipped"
+      ]
+    },
+    "reason": "only 6 distinct values found \u2014 treating as categorical",
+    "plain_english": "orders.order_status must only contain: ['cancelled', 'confirmed', 'delivered', 'pending', 'refunded', 'shipped']",
+    "generated_at": "2026-02-18T03:04:58.563814"
+  },
+  {
+    "table": "orders",
+    "column": "channel",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "email_campaign",
+        "mobile_app",
+        "social",
+        "web"
+      ]
+    },
+    "reason": "only 4 distinct values found \u2014 treating as categorical",
+    "plain_english": "orders.channel must only contain: ['email_campaign', 'mobile_app', 'social', 'web']",
+    "generated_at": "2026-02-18T03:04:58.563817"
+  },
+  {
+    "table": "orders",
+    "column": "shipping_country",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "AU",
+        "CA",
+        "DE",
+        "GB",
+        "US"
+      ]
+    },
+    "reason": "only 5 distinct values found \u2014 treating as categorical",
+    "plain_english": "orders.shipping_country must only contain: ['AU', 'CA', 'DE', 'GB', 'US']",
+    "generated_at": "2026-02-18T03:04:58.563820"
+  },
+  {
+    "table": "orders",
+    "column": "__row_count__",
+    "test_type": "row_count_between",
+    "parameters": {
+      "min_rows": 24000,
+      "max_rows": 36000
+    },
+    "reason": "historical mean row count is 30,000 (\u00b120% buffer)",
+    "plain_english": "orders row count must be between 24,000 and 36,000",
+    "generated_at": "2026-02-18T03:04:58.566083"
+  },
+  {
+    "table": "orders",
+    "column": "order_total",
+    "test_type": "value_between",
+    "parameters": {
+      "min_value": -1690.935,
+      "max_value": 8494.335
+    },
+    "reason": "historical range was [6.61, 6796.79] (\u00b125% buffer added)",
+    "plain_english": "orders.order_total values must be between -1690.935 and 8494.335",
+    "generated_at": "2026-02-18T03:04:58.566103"
+  },
+  {
+    "table": "order_items",
+    "column": "item_id",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "order_items.item_id must never be null",
+    "generated_at": "2026-02-18T03:04:58.607827"
+  },
+  {
+    "table": "order_items",
+    "column": "order_id",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "order_items.order_id must never be null",
+    "generated_at": "2026-02-18T03:04:58.607840"
+  },
+  {
+    "table": "order_items",
+    "column": "product_id",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "order_items.product_id must never be null",
+    "generated_at": "2026-02-18T03:04:58.607844"
+  },
+  {
+    "table": "order_items",
+    "column": "quantity",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "order_items.quantity must never be null",
+    "generated_at": "2026-02-18T03:04:58.607848"
+  },
+  {
+    "table": "order_items",
+    "column": "unit_price",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "order_items.unit_price must never be null",
+    "generated_at": "2026-02-18T03:04:58.607851"
+  },
+  {
+    "table": "order_items",
+    "column": "discount_pct",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "order_items.discount_pct must never be null",
+    "generated_at": "2026-02-18T03:04:58.607855"
+  },
+  {
+    "table": "order_items",
+    "column": "line_total",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "order_items.line_total must never be null",
+    "generated_at": "2026-02-18T03:04:58.607858"
+  },
+  {
+    "table": "order_items",
+    "column": "item_id",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 100.0% (over 99% threshold)",
+    "plain_english": "order_items.item_id must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.607864"
+  },
+  {
+    "table": "order_items",
+    "column": "quantity",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    "reason": "only 4 distinct values found \u2014 treating as categorical",
+    "plain_english": "order_items.quantity must only contain: ['1', '2', '3', '4']",
+    "generated_at": "2026-02-18T03:04:58.607871"
+  },
+  {
+    "table": "order_items",
+    "column": "discount_pct",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "0",
+        "5",
+        "10",
+        "15",
+        "20"
+      ]
+    },
+    "reason": "only 5 distinct values found \u2014 treating as categorical",
+    "plain_english": "order_items.discount_pct must only contain: ['0', '5', '10', '15', '20']",
+    "generated_at": "2026-02-18T03:04:58.607875"
+  },
+  {
+    "table": "order_items",
+    "column": "__row_count__",
+    "test_type": "row_count_between",
+    "parameters": {
+      "min_rows": 46640,
+      "max_rows": 69961
+    },
+    "reason": "historical mean row count is 58,301 (\u00b120% buffer)",
+    "plain_english": "order_items row count must be between 46,640 and 69,961",
+    "generated_at": "2026-02-18T03:04:58.610339"
+  },
+  {
+    "table": "order_items",
+    "column": "quantity",
+    "test_type": "value_between",
+    "parameters": {
+      "min_value": 0.25,
+      "max_value": 4.75
+    },
+    "reason": "historical range was [1, 4] (\u00b125% buffer added)",
+    "plain_english": "order_items.quantity values must be between 0.25 and 4.75",
+    "generated_at": "2026-02-18T03:04:58.610360"
+  },
+  {
+    "table": "order_items",
+    "column": "unit_price",
+    "test_type": "value_between",
+    "parameters": {
+      "min_value": -187.3175,
+      "max_value": 986.1475
+    },
+    "reason": "historical range was [8.26, 790.57] (\u00b125% buffer added)",
+    "plain_english": "order_items.unit_price values must be between -187.3175 and 986.1475",
+    "generated_at": "2026-02-18T03:04:58.610371"
+  },
+  {
+    "table": "order_items",
+    "column": "discount_pct",
+    "test_type": "value_between",
+    "parameters": {
+      "min_value": -5.0,
+      "max_value": 25.0
+    },
+    "reason": "historical range was [0, 20] (\u00b125% buffer added)",
+    "plain_english": "order_items.discount_pct values must be between -5.0 and 25.0",
+    "generated_at": "2026-02-18T03:04:58.610377"
+  },
+  {
+    "table": "order_items",
+    "column": "line_total",
+    "test_type": "value_between",
+    "parameters": {
+      "min_value": -782.3075,
+      "max_value": 3951.1975
+    },
+    "reason": "historical range was [6.61, 3162.28] (\u00b125% buffer added)",
+    "plain_english": "order_items.line_total values must be between -782.3075 and 3951.1975",
+    "generated_at": "2026-02-18T03:04:58.610383"
+  },
+  {
+    "table": "payments",
+    "column": "payment_id",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "payments.payment_id must never be null",
+    "generated_at": "2026-02-18T03:04:58.639882"
+  },
+  {
+    "table": "payments",
+    "column": "order_id",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "payments.order_id must never be null",
+    "generated_at": "2026-02-18T03:04:58.639897"
+  },
+  {
+    "table": "payments",
+    "column": "payment_method",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "payments.payment_method must never be null",
+    "generated_at": "2026-02-18T03:04:58.639901"
+  },
+  {
+    "table": "payments",
+    "column": "amount",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "payments.amount must never be null",
+    "generated_at": "2026-02-18T03:04:58.639905"
+  },
+  {
+    "table": "payments",
+    "column": "currency",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "payments.currency must never be null",
+    "generated_at": "2026-02-18T03:04:58.639908"
+  },
+  {
+    "table": "payments",
+    "column": "status",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "payments.status must never be null",
+    "generated_at": "2026-02-18T03:04:58.639912"
+  },
+  {
+    "table": "payments",
+    "column": "processed_at",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "payments.processed_at must never be null",
+    "generated_at": "2026-02-18T03:04:58.639915"
+  },
+  {
+    "table": "payments",
+    "column": "gateway_ref",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "payments.gateway_ref must never be null",
+    "generated_at": "2026-02-18T03:04:58.639919"
+  },
+  {
+    "table": "payments",
+    "column": "payment_id",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 100.0% (over 99% threshold)",
+    "plain_english": "payments.payment_id must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.639925"
+  },
+  {
+    "table": "payments",
+    "column": "order_id",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 100.0% (over 99% threshold)",
+    "plain_english": "payments.order_id must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.639929"
+  },
+  {
+    "table": "payments",
+    "column": "processed_at",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 100.0% (over 99% threshold)",
+    "plain_english": "payments.processed_at must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.639933"
+  },
+  {
+    "table": "payments",
+    "column": "gateway_ref",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 100.0% (over 99% threshold)",
+    "plain_english": "payments.gateway_ref must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.639937"
+  },
+  {
+    "table": "payments",
+    "column": "payment_method",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "apple_pay",
+        "bank_transfer",
+        "credit_card",
+        "debit_card",
+        "paypal"
+      ]
+    },
+    "reason": "only 5 distinct values found \u2014 treating as categorical",
+    "plain_english": "payments.payment_method must only contain: ['apple_pay', 'bank_transfer', 'credit_card', 'debit_card', 'paypal']",
+    "generated_at": "2026-02-18T03:04:58.639943"
+  },
+  {
+    "table": "payments",
+    "column": "status",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "failed",
+        "pending",
+        "success"
+      ]
+    },
+    "reason": "only 3 distinct values found \u2014 treating as categorical",
+    "plain_english": "payments.status must only contain: ['failed', 'pending', 'success']",
+    "generated_at": "2026-02-18T03:04:58.639947"
+  },
+  {
+    "table": "payments",
+    "column": "__row_count__",
+    "test_type": "row_count_between",
+    "parameters": {
+      "min_rows": 20480,
+      "max_rows": 30721
+    },
+    "reason": "historical mean row count is 25,601 (\u00b120% buffer)",
+    "plain_english": "payments row count must be between 20,480 and 30,721",
+    "generated_at": "2026-02-18T03:04:58.642242"
+  },
+  {
+    "table": "payments",
+    "column": "amount",
+    "test_type": "value_between",
+    "parameters": {
+      "min_value": -1690.935,
+      "max_value": 8494.335
+    },
+    "reason": "historical range was [6.61, 6796.79] (\u00b125% buffer added)",
+    "plain_english": "payments.amount values must be between -1690.935 and 8494.335",
+    "generated_at": "2026-02-18T03:04:58.642266"
+  },
+  {
+    "table": "events",
+    "column": "event_id",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "events.event_id must never be null",
+    "generated_at": "2026-02-18T03:04:58.713374"
+  },
+  {
+    "table": "events",
+    "column": "session_id",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "events.session_id must never be null",
+    "generated_at": "2026-02-18T03:04:58.713387"
+  },
+  {
+    "table": "events",
+    "column": "customer_id",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "events.customer_id must never be null",
+    "generated_at": "2026-02-18T03:04:58.713392"
+  },
+  {
+    "table": "events",
+    "column": "event_type",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "events.event_type must never be null",
+    "generated_at": "2026-02-18T03:04:58.713396"
+  },
+  {
+    "table": "events",
+    "column": "page_url",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "events.page_url must never be null",
+    "generated_at": "2026-02-18T03:04:58.713400"
+  },
+  {
+    "table": "events",
+    "column": "occurred_at",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "events.occurred_at must never be null",
+    "generated_at": "2026-02-18T03:04:58.713404"
+  },
+  {
+    "table": "events",
+    "column": "device_type",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "events.device_type must never be null",
+    "generated_at": "2026-02-18T03:04:58.713408"
+  },
+  {
+    "table": "events",
+    "column": "os",
+    "test_type": "not_null",
+    "parameters": {},
+    "reason": "null_pct was 0.00% (under 1% threshold)",
+    "plain_english": "events.os must never be null",
+    "generated_at": "2026-02-18T03:04:58.713412"
+  },
+  {
+    "table": "events",
+    "column": "event_id",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 100.0% (over 99% threshold)",
+    "plain_english": "events.event_id must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.713419"
+  },
+  {
+    "table": "events",
+    "column": "session_id",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 100.0% (over 99% threshold)",
+    "plain_english": "events.session_id must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.713423"
+  },
+  {
+    "table": "events",
+    "column": "page_url",
+    "test_type": "unique",
+    "parameters": {},
+    "reason": "distinct_ratio was 99.9% (over 99% threshold)",
+    "plain_english": "events.page_url must have no duplicate values",
+    "generated_at": "2026-02-18T03:04:58.713427"
+  },
+  {
+    "table": "events",
+    "column": "event_type",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "add_to_cart",
+        "checkout_complete",
+        "checkout_start",
+        "page_view",
+        "product_view",
+        "search"
+      ]
+    },
+    "reason": "only 6 distinct values found \u2014 treating as categorical",
+    "plain_english": "events.event_type must only contain: ['add_to_cart', 'checkout_complete', 'checkout_start', 'page_view', 'product_view', 'search']",
+    "generated_at": "2026-02-18T03:04:58.713434"
+  },
+  {
+    "table": "events",
+    "column": "device_type",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "desktop",
+        "mobile",
+        "tablet"
+      ]
+    },
+    "reason": "only 3 distinct values found \u2014 treating as categorical",
+    "plain_english": "events.device_type must only contain: ['desktop', 'mobile', 'tablet']",
+    "generated_at": "2026-02-18T03:04:58.713438"
+  },
+  {
+    "table": "events",
+    "column": "os",
+    "test_type": "accepted_values",
+    "parameters": {
+      "values": [
+        "Android",
+        "Windows",
+        "iOS",
+        "macOS"
+      ]
+    },
+    "reason": "only 4 distinct values found \u2014 treating as categorical",
+    "plain_english": "events.os must only contain: ['Android', 'Windows', 'iOS', 'macOS']",
+    "generated_at": "2026-02-18T03:04:58.713442"
+  },
+  {
+    "table": "events",
+    "column": "__row_count__",
+    "test_type": "row_count_between",
+    "parameters": {
+      "min_rows": 48000,
+      "max_rows": 72000
+    },
+    "reason": "historical mean row count is 60,000 (\u00b120% buffer)",
+    "plain_english": "events row count must be between 48,000 and 72,000",
+    "generated_at": "2026-02-18T03:04:58.715851"
+  }
+]

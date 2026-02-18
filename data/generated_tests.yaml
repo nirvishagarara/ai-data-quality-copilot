@@ -1,0 +1,248 @@
+# Auto-generated data quality tests
+# Generated at: 2026-02-18T03:04:58.720595
+# Tool: Data Quality Copilot
+
+version: 2
+models:
+  - name: customers
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+      - name: email
+        tests:
+          - not_null
+      - name: first_name
+        tests:
+          - not_null
+      - name: last_name
+        tests:
+          - not_null
+      - name: country
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AU', 'CA', 'DE', 'GB', 'US']
+      - name: signup_date
+        tests:
+          - not_null
+      - name: is_premium
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['False', 'True']
+      - name: age_bucket
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['18-24', '25-34', '35-44', '45-54', '55+']
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "(select count(*) from {{ this }}) between 4000 and 6000"
+
+  - name: products
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+          - unique
+      - name: product_name
+        tests:
+          - not_null
+          - unique
+      - name: category
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Books', 'Clothing', 'Electronics', 'Home & Garden', 'Sports', 'Toys']
+      - name: sub_category
+        tests:
+          - not_null
+      - name: unit_price
+        tests:
+          - not_null
+          - unique
+          - dbt_utils.expression_is_true:
+              expression: ">= -187.3175 and unit_price <= 986.1475"
+      - name: cost_price
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= -100.705 and cost_price <= 527.765"
+      - name: stock_qty
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= -495.25 and stock_qty <= 2494.25"
+      - name: is_active
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['False', 'True']
+      - name: created_at
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "(select count(*) from {{ this }}) between 400 and 600"
+
+  - name: orders
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        tests:
+          - not_null
+      - name: order_status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['cancelled', 'confirmed', 'delivered', 'pending', 'refunded', 'shipped']
+      - name: channel
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['email_campaign', 'mobile_app', 'social', 'web']
+      - name: created_at
+        tests:
+          - not_null
+          - unique
+      - name: updated_at
+        tests:
+          - not_null
+          - unique
+      - name: shipping_country
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AU', 'CA', 'DE', 'GB', 'US']
+      - name: order_total
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= -1690.935 and order_total <= 8494.335"
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "(select count(*) from {{ this }}) between 24000 and 36000"
+
+  - name: order_items
+    columns:
+      - name: item_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+      - name: product_id
+        tests:
+          - not_null
+      - name: quantity
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['1', '2', '3', '4']
+          - dbt_utils.expression_is_true:
+              expression: ">= 0.25 and quantity <= 4.75"
+      - name: unit_price
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= -187.3175 and unit_price <= 986.1475"
+      - name: discount_pct
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['0', '5', '10', '15', '20']
+          - dbt_utils.expression_is_true:
+              expression: ">= -5.0 and discount_pct <= 25.0"
+      - name: line_total
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= -782.3075 and line_total <= 3951.1975"
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "(select count(*) from {{ this }}) between 46640 and 69961"
+
+  - name: payments
+    columns:
+      - name: payment_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: payment_method
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['apple_pay', 'bank_transfer', 'credit_card', 'debit_card', 'paypal']
+      - name: amount
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= -1690.935 and amount <= 8494.335"
+      - name: currency
+        tests:
+          - not_null
+      - name: status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['failed', 'pending', 'success']
+      - name: processed_at
+        tests:
+          - not_null
+          - unique
+      - name: gateway_ref
+        tests:
+          - not_null
+          - unique
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "(select count(*) from {{ this }}) between 20480 and 30721"
+
+  - name: events
+    columns:
+      - name: event_id
+        tests:
+          - not_null
+          - unique
+      - name: session_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        tests:
+          - not_null
+      - name: event_type
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['add_to_cart', 'checkout_complete', 'checkout_start', 'page_view', 'product_view', 'search']
+      - name: page_url
+        tests:
+          - not_null
+          - unique
+      - name: occurred_at
+        tests:
+          - not_null
+      - name: device_type
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['desktop', 'mobile', 'tablet']
+      - name: os
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Android', 'Windows', 'iOS', 'macOS']
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "(select count(*) from {{ this }}) between 48000 and 72000"
