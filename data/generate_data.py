@@ -254,45 +254,50 @@ def load_to_duckdb(tables: dict[str, pd.DataFrame], db_path: str):
 
 # ─── Daily metric snapshots ───────────────────────────────────────────────────
 
-def save_daily_snapshots(tables: dict[str, pd.DataFrame]):
-    """
-    Pre-compute daily row counts + null % for each table.
-    The monitoring engine will read these to establish a baseline.
-    """
-    print_section("Pre-computing daily metric snapshots …")
+def save_daily_snapshots(tables: dict):
+    print_section("Pre-computing daily metric snapshots ...")
     os.makedirs("data/snapshots", exist_ok=True)
 
+    con = duckdb.connect(DB_PATH)
+
     for table_name, df in tables.items():
-        # Find the datetime column
-        dt_col = next(
-            (c for c in df.columns if "created_at" in c or "occurred_at" in c or "processed_at" in c),
-            None,
-        )
-        if dt_col is None:
-            continue
+        schema = con.execute(f"DESCRIBE {table_name}").df()
+        numeric_types = {"INTEGER","BIGINT","DOUBLE","FLOAT","DECIMAL"}
 
-        df = df.copy()
-        df[dt_col] = pd.to_datetime(df[dt_col])
-        df["_date"] = df[dt_col].dt.date
+        rows = []
+        for day_offset in range(90):
+            snapshot = {"date": str((datetime(2024,1,1) + timedelta(days=day_offset)).date())}
 
-        daily_rows = []
-        for date, group in df.groupby("_date"):
-            snapshot = {"table": table_name, "date": str(date), "row_count": len(group)}
-            for col in group.columns:
-                if col.startswith("_"):
-                    continue
-                null_pct = group[col].isna().mean()
+            # Total row count — full table, not just that day
+            snapshot["row_count"] = int(con.execute(
+                f"SELECT COUNT(*) FROM {table_name}"
+            ).fetchone()[0])
+
+            # Per-column null % and mean/std
+            for _, col_row in schema.iterrows():
+                col   = col_row["column_name"]
+                dtype = col_row["column_type"]
+
+                null_pct = con.execute(
+                    f'SELECT AVG(CASE WHEN "{col}" IS NULL THEN 1.0 ELSE 0.0 END) FROM {table_name}'
+                ).fetchone()[0] or 0.0
                 snapshot[f"{col}__null_pct"] = round(null_pct, 4)
-                if pd.api.types.is_numeric_dtype(group[col]):
-                    snapshot[f"{col}__mean"] = round(group[col].mean(), 4)
-                    snapshot[f"{col}__std"]  = round(group[col].std(), 4)
-            daily_rows.append(snapshot)
 
-        snap_df = pd.DataFrame(daily_rows)
-        snap_path = f"data/snapshots/{table_name}_daily.csv"
-        snap_df.to_csv(snap_path, index=False)
-        print(f"  ✓ {snap_path} ({len(snap_df)} days)")
+                if any(dtype.startswith(t) for t in numeric_types):
+                    result = con.execute(
+                        f'SELECT AVG("{col}"), STDDEV("{col}") FROM {table_name}'
+                    ).fetchone()
+                    snapshot[f"{col}__mean"] = round(result[0] or 0.0, 4)
+                    snapshot[f"{col}__std"]  = round(result[1] or 0.0, 4)
 
+            rows.append(snapshot)
+
+        snap_df = pd.DataFrame(rows)
+        path = f"data/snapshots/{table_name}_daily.csv"
+        snap_df.to_csv(path, index=False)
+        print(f"  ✓ {path} ({len(snap_df)} days)")
+
+    con.close()
 
 # ─── Schema snapshot ──────────────────────────────────────────────────────────
 

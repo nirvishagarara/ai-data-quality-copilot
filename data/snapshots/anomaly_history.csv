@@ -1,0 +1,12 @@
+detected_at,table,column,metric,current_value,baseline_mean,baseline_std,z_score,pct_change,severity
+2026-02-18T02:21:06.807737,products,__row_count__,row_count,500.0,1.566667,0.61554,809.75,318.1489,CRITICAL
+2026-02-18T02:21:06.828850,orders,__row_count__,row_count,30000.0,329.933333,13.745141,2158.586,89.9275,CRITICAL
+2026-02-18T02:21:06.847627,payments,__row_count__,row_count,25601.0,270.433333,42.11388,601.478,93.6666,CRITICAL
+2026-02-18T02:21:06.865741,events,__row_count__,row_count,60000.0,637.1,96.081337,617.84,93.1767,CRITICAL
+2026-02-18T02:26:13.759198,products,__row_count__,row_count,500.0,1.566667,0.61554,809.75,318.1489,CRITICAL
+2026-02-18T02:26:13.781140,orders,__row_count__,row_count,30000.0,329.933333,13.745141,2158.586,89.9275,CRITICAL
+2026-02-18T02:26:13.799062,payments,__row_count__,row_count,25601.0,270.433333,42.11388,601.478,93.6666,CRITICAL
+2026-02-18T02:26:13.815485,events,__row_count__,row_count,60000.0,637.1,96.081337,617.84,93.1767,CRITICAL
+2026-02-18T02:39:42.429590,payments,amount,null_pct,0.45424,0.0,0.0,999.0,0.4542,CRITICAL
+2026-02-18T02:42:48.312432,orders,order_total,mean,2643.472406,747.3844,0.0,999.0,2.537,CRITICAL
+2026-02-18T02:50:10.287833,orders,__row_count__,row_count,19486.0,30000.0,0.0,999.0,-0.3505,CRITICAL

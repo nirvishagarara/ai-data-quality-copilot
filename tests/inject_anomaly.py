@@ -108,32 +108,23 @@ def inject_null_spike(con: duckdb.DuckDBPyConnection):
 
 @scenario(
     name="row_drop",
-    description="Drops 60% of today's orders (upstream source went down overnight)",
-    tables_affected=["orders", "order_items"],
+    description="Drops 35% of orders randomly (upstream source went down)",
+    tables_affected=["orders"],
 )
 def inject_row_drop(con: duckdb.DuckDBPyConnection):
-    """
-    Simulates a source database going offline — today's orders are mostly missing.
-    Row count anomaly detector should fire immediately.
-    """
-    from datetime import date
-    today = date.today()
-    print(f"  → Deleting 60% of orders with created_at = {today} …")
+    before = con.execute("SELECT COUNT(*) FROM orders").fetchone()[0]
+    print(f"  → Deleting 35% of orders randomly ({before:,} rows before) …")
 
-    # Add a synthetic "today" batch first so there's something to drop
-    con.execute(f"""
+    con.execute("""
         CREATE OR REPLACE TABLE orders AS
         SELECT * FROM orders
-        WHERE NOT (
-            CAST(created_at AS DATE) = CURRENT_DATE
-            AND random() < 0.60
-        )
+        WHERE random() > 0.35
     """)
 
-    remaining = con.execute("SELECT COUNT(*) FROM orders").fetchone()[0]
-    print(f"  ✓ Row drop injected: orders now has {remaining:,} rows")
-    print("  ℹ  Note: 'today' rows are sparse — your monitor will flag the count drop")
-
+    after = con.execute("SELECT COUNT(*) FROM orders").fetchone()[0]
+    dropped = before - after
+    print(f"  ✓ Row drop injected: {dropped:,} rows deleted ({dropped/before:.0%})")
+    print(f"  ✓ orders now has {after:,} rows")
 
 @scenario(
     name="distribution_shift",
