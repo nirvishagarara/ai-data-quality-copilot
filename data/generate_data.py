@@ -297,19 +297,23 @@ def save_daily_snapshots(tables: dict[str, pd.DataFrame]):
 # ─── Schema snapshot ──────────────────────────────────────────────────────────
 
 def save_schema_snapshot(tables: dict[str, pd.DataFrame]):
-    """Save today's schema for each table — baseline for drift detection."""
-    print_section("Saving schema snapshots …")
+    """Save schema snapshot using DuckDB types, not Pandas types."""
+    print_section("Saving schema snapshots ...")
     os.makedirs("data/snapshots", exist_ok=True)
 
+    con = duckdb.connect(DB_PATH)
     rows = []
-    for table_name, df in tables.items():
-        for col in df.columns:
+    for table_name in tables.keys():
+        result = con.execute(f"DESCRIBE {table_name}").df()
+        for _, row in result.iterrows():
             rows.append({
-                "table":       table_name,
-                "column_name": col,
-                "dtype":       str(df[col].dtype),
+                "table":          table_name,
+                "column_name":    row["column_name"],
+                "dtype":          row["column_type"],  # ← DuckDB types now
                 "snapshotted_at": datetime.utcnow().isoformat(),
             })
+    con.close()
+
     schema_df = pd.DataFrame(rows)
     schema_df.to_csv("data/snapshots/schema_baseline.csv", index=False)
     print(f"  ✓ data/snapshots/schema_baseline.csv ({len(rows)} columns total)")
