@@ -1,0 +1,16 @@
+[
+  {
+    "table": "orders",
+    "column": "order_status",
+    "metric": "schema_drift",
+    "anomaly_summary": "[CRITICAL] orders.order_status \u2014 schema_drift \u2193 dropped 0.0% (value: 0.0000, z-score: 999.00)",
+    "explanation": "API error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CYEpeQBA7tYVVGbJ5gNHQ'}",
+    "root_cause": "Could not reach LLM API.",
+    "fixes": [
+      "Check ANTHROPIC_API_KEY in .env",
+      "Check internet connection"
+    ],
+    "severity": "CRITICAL",
+    "generated_at": "2026-02-18T03:26:43.031802"
+  }
+]

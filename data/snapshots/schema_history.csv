@@ -50,3 +50,5 @@ detected_at,table,drift_type,column_name,old_value,new_value,severity
 2026-02-18T01:55:27.626514,events,type_changed,customer_id,object,VARCHAR,HIGH
 2026-02-18T02:02:07.722127,orders,column_dropped,order_status,VARCHAR,,CRITICAL
 2026-02-18T02:02:07.722142,orders,column_added,status,,VARCHAR,LOW
+2026-02-18T03:26:42.708349,orders,column_dropped,order_status,VARCHAR,,CRITICAL
+2026-02-18T03:26:42.708364,orders,column_added,status,,VARCHAR,LOW

@@ -1,17 +1,29 @@
-duckdb 
-pandas 
-polars 
-scikit-learn 
-scipy
-fastapi 
-faker
-uvicorn 
-streamlit
-anthropic 
-python-dotenv 
-requests
-networkx 
+# Data & storage
+duckdb
+pandas
 numpy
-pyvis 
-pytest 
+faker
+
+# Monitoring & ML
+scikit-learn
+scipy
+
+# LLM
+anthropic
+python-dotenv
+
+# Alerts & lineage
+requests
+networkx
+pyvis
+
+# API & frontend
+fastapi
+uvicorn
+streamlit
+
+# Testing
+pytest
+
+# Notebooks
 jupyter
