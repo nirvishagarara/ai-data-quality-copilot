@@ -10,3 +10,5 @@ detected_at,table,column,metric,current_value,baseline_mean,baseline_std,z_score
 2026-02-18T02:39:42.429590,payments,amount,null_pct,0.45424,0.0,0.0,999.0,0.4542,CRITICAL
 2026-02-18T02:42:48.312432,orders,order_total,mean,2643.472406,747.3844,0.0,999.0,2.537,CRITICAL
 2026-02-18T02:50:10.287833,orders,__row_count__,row_count,19486.0,30000.0,0.0,999.0,-0.3505,CRITICAL
+2026-02-18T07:54:27.771019,payments,amount,null_pct,0.448459,0.0,0.0,999.0,0.4485,CRITICAL
+2026-02-20T03:19:38.482488,payments,amount,null_pct,0.446272,0.0,0.0,999.0,0.4463,CRITICAL

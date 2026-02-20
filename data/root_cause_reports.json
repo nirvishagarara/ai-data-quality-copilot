@@ -1,16 +1,18 @@
 [
   {
-    "table": "orders",
-    "column": "order_status",
-    "metric": "schema_drift",
-    "anomaly_summary": "[CRITICAL] orders.order_status \u2014 schema_drift \u2193 dropped 0.0% (value: 0.0000, z-score: 999.00)",
-    "explanation": "API error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CYEpeQBA7tYVVGbJ5gNHQ'}",
-    "root_cause": "Could not reach LLM API.",
+    "table": "payments",
+    "column": "amount",
+    "metric": "null_pct",
+    "anomaly_summary": "[CRITICAL] payments.amount \u2014 null_pct \u2191 spiked 44.6% (value: 0.4463, z-score: 999.00)",
+    "explanation": "The payments table's amount column has suddenly shifted from having virtually no null values (0% baseline) to 44.63% null values, indicating a systemic data quality failure affecting nearly half of all payment records being ingested.",
+    "root_cause": "ETL process failure in amount field extraction or transformation - likely a breaking change in upstream source system schema, a failed column mapping in the transformation logic, or a corrupted/disabled data source connector that is writing NULL values instead of actual payment amounts.",
     "fixes": [
-      "Check ANTHROPIC_API_KEY in .env",
-      "Check internet connection"
+      "Immediately check the upstream source system (payment processor API, database export, or file feed) for schema changes, data format changes, or connection failures that occurred at or before 2026-02-20T03:19:38",
+      "Review ETL job logs for the payments pipeline execution around the detection timestamp to identify transformation errors, failed lookups, or null-handling logic that activated",
+      "Run a manual validation query comparing row counts with non-null amount values before and after 2026-02-20T03:00:00 to identify the exact timestamp of failure and scope of affected records",
+      "Temporarily implement upstream data validation to reject or quarantine records with null amount values and send alerts to the data engineering team before they reach the warehouse"
     ],
     "severity": "CRITICAL",
-    "generated_at": "2026-02-18T03:26:43.031802"
+    "generated_at": "2026-02-20T03:19:43.699249"
   }
 ]
