@@ -1,0 +1,165 @@
+<!-- Architecture diagram for Data Quality Copilot -->
+<svg width="900" height="520" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="900" height="520" fill="#0F1117" rx="12"/>
+
+  <!-- Title -->
+  <text x="450" y="38" text-anchor="middle" fill="#FFFFFF" font-size="18" font-weight="bold">AI-Powered Data Quality Copilot — Architecture</text>
+
+  <!-- ── LAYER 1: DATA SOURCES ── -->
+  <rect x="30" y="70" width="160" height="36" rx="6" fill="#1F4E79"/>
+  <text x="110" y="93" text-anchor="middle" fill="white" font-size="13" font-weight="bold">DATA SOURCES</text>
+
+  <!-- DuckDB warehouse box -->
+  <rect x="30" y="116" width="160" height="70" rx="8" fill="#1a2744" stroke="#2E75B6" stroke-width="1.5"/>
+  <text x="110" y="140" text-anchor="middle" fill="#7EB8F7" font-size="12" font-weight="bold">DuckDB Warehouse</text>
+  <text x="110" y="157" text-anchor="middle" fill="#AAAAAA" font-size="10">6 tables · ~120k rows</text>
+  <text x="110" y="172" text-anchor="middle" fill="#AAAAAA" font-size="10">90 days of history</text>
+
+  <!-- Snapshots box -->
+  <rect x="30" y="200" width="160" height="60" rx="8" fill="#1a2744" stroke="#2E75B6" stroke-width="1.5"/>
+  <text x="110" y="222" text-anchor="middle" fill="#7EB8F7" font-size="12" font-weight="bold">Daily Snapshots</text>
+  <text x="110" y="239" text-anchor="middle" fill="#AAAAAA" font-size="10">CSV baselines</text>
+  <text x="110" y="254" text-anchor="middle" fill="#AAAAAA" font-size="10">schema_baseline.csv</text>
+
+  <!-- ── LAYER 2: MONITORING ENGINE ── -->
+  <rect x="240" y="70" width="180" height="36" rx="6" fill="#054005"/>
+  <text x="330" y="93" text-anchor="middle" fill="white" font-size="13" font-weight="bold">MONITORING ENGINE</text>
+
+  <!-- Schema Monitor -->
+  <rect x="240" y="116" width="180" height="55" rx="8" fill="#0a2a0a" stroke="#107C10" stroke-width="1.5"/>
+  <text x="330" y="139" text-anchor="middle" fill="#7FD67F" font-size="12" font-weight="bold">Schema Monitor</text>
+  <text x="330" y="156" text-anchor="middle" fill="#AAAAAA" font-size="10">Detects column drift</text>
+  <text x="330" y="169" text-anchor="middle" fill="#AAAAAA" font-size="10">CRITICAL / HIGH / LOW</text>
+
+  <!-- Anomaly Detector -->
+  <rect x="240" y="182" width="180" height="55" rx="8" fill="#0a2a0a" stroke="#107C10" stroke-width="1.5"/>
+  <text x="330" y="205" text-anchor="middle" fill="#7FD67F" font-size="12" font-weight="bold">Anomaly Detector</text>
+  <text x="330" y="222" text-anchor="middle" fill="#AAAAAA" font-size="10">Z-score + abs threshold</text>
+  <text x="330" y="235" text-anchor="middle" fill="#AAAAAA" font-size="10">null%, mean, row count</text>
+
+  <!-- Test Generator -->
+  <rect x="240" y="248" width="180" height="55" rx="8" fill="#0a2a0a" stroke="#107C10" stroke-width="1.5"/>
+  <text x="330" y="271" text-anchor="middle" fill="#7FD67F" font-size="12" font-weight="bold">Test Generator</text>
+  <text x="330" y="288" text-anchor="middle" fill="#AAAAAA" font-size="10">93 auto-generated tests</text>
+  <text x="330" y="301" text-anchor="middle" fill="#AAAAAA" font-size="10">dbt-compatible YAML</text>
+
+  <!-- ── LAYER 3: LLM ENGINE ── -->
+  <rect x="475" y="70" width="175" height="36" rx="6" fill="#4B0082"/>
+  <text x="562" y="93" text-anchor="middle" fill="white" font-size="13" font-weight="bold">LLM ENGINE</text>
+
+  <!-- Root Cause Analyzer -->
+  <rect x="475" y="116" width="175" height="90" rx="8" fill="#1a0a2a" stroke="#9B59B6" stroke-width="1.5"/>
+  <text x="562" y="141" text-anchor="middle" fill="#C39BD3" font-size="12" font-weight="bold">Root Cause Analyzer</text>
+  <text x="562" y="158" text-anchor="middle" fill="#AAAAAA" font-size="10">Claude Haiku API</text>
+  <text x="562" y="173" text-anchor="middle" fill="#AAAAAA" font-size="10">Multi-context prompts</text>
+  <text x="562" y="188" text-anchor="middle" fill="#AAAAAA" font-size="10">JSON structured output</text>
+  <text x="562" y="201" text-anchor="middle" fill="#AAAAAA" font-size="10">Plain-English reports</text>
+
+  <!-- ── LAYER 4: OUTPUTS ── -->
+  <rect x="710" y="70" width="160" height="36" rx="6" fill="#7A3B00"/>
+  <text x="790" y="93" text-anchor="middle" fill="white" font-size="13" font-weight="bold">OUTPUTS</text>
+
+  <!-- Slack -->
+  <rect x="710" y="116" width="160" height="50" rx="8" fill="#2a1500" stroke="#FF8C00" stroke-width="1.5"/>
+  <text x="790" y="139" text-anchor="middle" fill="#FFB347" font-size="12" font-weight="bold">Slack Alerts</text>
+  <text x="790" y="156" text-anchor="middle" fill="#AAAAAA" font-size="10">Colour-coded severity</text>
+  <text x="790" y="169" text-anchor="middle" fill="#AAAAAA" font-size="10">Webhook integration</text>
+
+  <!-- Lineage Graph -->
+  <rect x="710" y="178" width="160" height="50" rx="8" fill="#2a1500" stroke="#FF8C00" stroke-width="1.5"/>
+  <text x="790" y="200" text-anchor="middle" fill="#FFB347" font-size="12" font-weight="bold">Lineage Graph</text>
+  <text x="790" y="217" text-anchor="middle" fill="#AAAAAA" font-size="10">Interactive HTML</text>
+  <text x="790" y="230" text-anchor="middle" fill="#AAAAAA" font-size="10">Anomaly highlighted</text>
+
+  <!-- FastAPI + Streamlit (coming soon) -->
+  <rect x="710" y="240" width="160" height="50" rx="8" fill="#1a1a1a" stroke="#555555" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="790" y="262" text-anchor="middle" fill="#888888" font-size="12" font-weight="bold">FastAPI + Streamlit</text>
+  <text x="790" y="279" text-anchor="middle" fill="#555555" font-size="10">Dashboard (Phase 5)</text>
+  <text x="790" y="292" text-anchor="middle" fill="#555555" font-size="10">Coming soon</text>
+
+  <!-- ── ARROWS: Sources → Monitoring ── -->
+  <line x1="191" y1="151" x2="238" y2="151" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <line x1="191" y1="230" x2="238" y2="230" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- ── ARROWS: Monitoring → LLM ── -->
+  <line x1="421" y1="143" x2="473" y2="155" stroke="#107C10" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <line x1="421" y1="209" x2="473" y2="165" stroke="#107C10" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+
+  <!-- ── ARROWS: LLM → Outputs ── -->
+  <line x1="651" y1="155" x2="708" y2="145" stroke="#9B59B6" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
+  <line x1="651" y1="175" x2="708" y2="200" stroke="#9B59B6" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
+
+  <!-- ── ARROW MARKERS ── -->
+  <defs>
+    <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#2E75B6"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#107C10"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#9B59B6"/>
+    </marker>
+  </defs>
+
+  <!-- ── BOTTOM: DEMO FLOW ── -->
+  <rect x="30" y="360" width="840" height="130" rx="10" fill="#111827" stroke="#333" stroke-width="1"/>
+  <text x="450" y="385" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="bold">Demo Flow</text>
+
+  <!-- Step boxes -->
+  <!-- Step 1 -->
+  <rect x="50" y="398" width="130" height="70" rx="6" fill="#1a2744" stroke="#2E75B6" stroke-width="1"/>
+  <text x="115" y="420" text-anchor="middle" fill="#7EB8F7" font-size="11" font-weight="bold">1. Inject Anomaly</text>
+  <text x="115" y="436" text-anchor="middle" fill="#888" font-size="10">null_spike /</text>
+  <text x="115" y="449" text-anchor="middle" fill="#888" font-size="10">schema_drift /</text>
+  <text x="115" y="462" text-anchor="middle" fill="#888" font-size="10">row_drop</text>
+
+  <!-- Arrow -->
+  <line x1="182" y1="433" x2="210" y2="433" stroke="#444" stroke-width="1.5" marker-end="url(#arrowGrey)"/>
+
+  <!-- Step 2 -->
+  <rect x="213" y="398" width="130" height="70" rx="6" fill="#0a2a0a" stroke="#107C10" stroke-width="1"/>
+  <text x="278" y="420" text-anchor="middle" fill="#7FD67F" font-size="11" font-weight="bold">2. Detect</text>
+  <text x="278" y="436" text-anchor="middle" fill="#888" font-size="10">Schema monitor</text>
+  <text x="278" y="449" text-anchor="middle" fill="#888" font-size="10">Anomaly detector</text>
+  <text x="278" y="462" text-anchor="middle" fill="#888" font-size="10">Flag + severity</text>
+
+  <!-- Arrow -->
+  <line x1="345" y1="433" x2="373" y2="433" stroke="#444" stroke-width="1.5" marker-end="url(#arrowGrey)"/>
+
+  <!-- Step 3 -->
+  <rect x="376" y="398" width="130" height="70" rx="6" fill="#1a0a2a" stroke="#9B59B6" stroke-width="1"/>
+  <text x="441" y="420" text-anchor="middle" fill="#C39BD3" font-size="11" font-weight="bold">3. Explain</text>
+  <text x="441" y="436" text-anchor="middle" fill="#888" font-size="10">Claude API call</text>
+  <text x="441" y="449" text-anchor="middle" fill="#888" font-size="10">Root cause +</text>
+  <text x="441" y="462" text-anchor="middle" fill="#888" font-size="10">fix suggestions</text>
+
+  <!-- Arrow -->
+  <line x1="508" y1="433" x2="536" y2="433" stroke="#444" stroke-width="1.5" marker-end="url(#arrowGrey)"/>
+
+  <!-- Step 4 -->
+  <rect x="539" y="398" width="130" height="70" rx="6" fill="#2a1500" stroke="#FF8C00" stroke-width="1"/>
+  <text x="604" y="420" text-anchor="middle" fill="#FFB347" font-size="11" font-weight="bold">4. Alert</text>
+  <text x="604" y="436" text-anchor="middle" fill="#888" font-size="10">Slack message</text>
+  <text x="604" y="449" text-anchor="middle" fill="#888" font-size="10">Lineage graph</text>
+  <text x="604" y="462" text-anchor="middle" fill="#888" font-size="10">report saved</text>
+
+  <!-- Arrow -->
+  <line x1="671" y1="433" x2="699" y2="433" stroke="#444" stroke-width="1.5" marker-end="url(#arrowGrey)"/>
+
+  <!-- Step 5 -->
+  <rect x="702" y="398" width="145" height="70" rx="6" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
+  <text x="774" y="420" text-anchor="middle" fill="#888" font-size="11" font-weight="bold">5. Dashboard</text>
+  <text x="774" y="436" text-anchor="middle" fill="#555" font-size="10">FastAPI + Streamlit</text>
+  <text x="774" y="449" text-anchor="middle" fill="#555" font-size="10">Full UI (Phase 5)</text>
+  <text x="774" y="462" text-anchor="middle" fill="#555" font-size="10">Coming soon</text>
+
+  <defs>
+    <marker id="arrowGrey" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#444444"/>
+    </marker>
+  </defs>
+
+</svg>
