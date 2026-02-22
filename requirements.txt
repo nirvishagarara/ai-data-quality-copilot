@@ -17,13 +17,8 @@ requests
 networkx
 pyvis
 
-# API & frontend
-fastapi
-uvicorn
+# Frontend
 streamlit
 
 # Testing
 pytest
-
-# Notebooks
-jupyter

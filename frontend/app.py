@@ -3,6 +3,9 @@ app.py
 ======
 Streamlit dashboard for the Data Quality Copilot.
 
+Runs standalone — no FastAPI/uvicorn process needed.
+All monitoring functions are called directly as Python imports.
+
 Pages:
   1. Dashboard    — KPI summary cards + recent anomalies
   2. Anomalies    — full anomaly explorer with LLM explanations
@@ -12,22 +15,45 @@ Pages:
   6. Run Pipeline — trigger monitoring runs from the UI
 
 Usage:
-    # Make sure API server is running first:
-    uvicorn src.api.main:app --reload --port 8000
-
-    # Then in a new terminal:
     streamlit run frontend/app.py
 """
 
+import sys
+import os
+
+# Make project root importable (src.monitoring.*, src.llm.*, etc.)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import json
-import requests
+from datetime import datetime
+
+import duckdb
 import pandas as pd
 import streamlit as st
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-API_BASE    = "http://localhost:8000"
+DB_PATH      = "data/warehouse.duckdb"
+REPORTS_PATH = "data/root_cause_reports.json"
+TESTS_JSON   = "data/generated_tests.json"
+ANOMALY_PATH = "data/snapshots/anomaly_history.csv"
+SCHEMA_PATH  = "data/snapshots/schema_history.csv"
 LINEAGE_PATH = "data/lineage_graph.html"
+
+TABLES = ["customers", "products", "orders", "order_items", "payments", "events"]
+
+PIPELINE_EDGES = [
+    {"source": "customers",   "target": "orders",           "label": "customer_id"},
+    {"source": "products",    "target": "order_items",      "label": "product_id"},
+    {"source": "orders",      "target": "order_items",      "label": "order_id"},
+    {"source": "orders",      "target": "payments",         "label": "order_id"},
+    {"source": "order_items", "target": "orders",           "label": "aggregates to"},
+    {"source": "customers",   "target": "events",           "label": "customer_id"},
+    {"source": "orders",      "target": "revenue_report",   "label": "feeds"},
+    {"source": "payments",    "target": "revenue_report",   "label": "feeds"},
+    {"source": "order_items", "target": "revenue_report",   "label": "feeds"},
+    {"source": "events",      "target": "behaviour_report", "label": "feeds"},
+]
 
 st.set_page_config(
     page_title = "Data Quality Copilot",
@@ -73,31 +99,169 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ─── API helpers ──────────────────────────────────────────────────────────────
+# ─── Internal helpers ─────────────────────────────────────────────────────────
 
-def api_get(path: str):
+def _load_json(path):
+    if not os.path.exists(path):
+        return []
+    with open(path) as f:
+        return json.load(f)
+
+
+def _load_csv(path):
+    if not os.path.exists(path):
+        return []
+    df = pd.read_csv(path)
+    return json.loads(df.fillna("").to_json(orient="records"))
+
+
+def _get(path):
+    """Dispatch GET-style requests to direct Python implementations."""
+    if path == "/":
+        return {"status": "healthy", "service": "Data Quality Copilot", "version": "1.0.0"}
+
+    if path == "/api/summary":
+        anomalies = _load_csv(ANOMALY_PATH)
+        reports   = _load_json(REPORTS_PATH)
+        tests     = _load_json(TESTS_JSON)
+        drift_count = 0
+        if os.path.exists(SCHEMA_PATH):
+            drift_count = len(pd.read_csv(SCHEMA_PATH))
+        return {
+            "tables_monitored":    len(TABLES),
+            "anomalies_total":     len(anomalies),
+            "anomalies_critical":  sum(1 for a in anomalies if a.get("severity") == "CRITICAL"),
+            "schema_drift_events": drift_count,
+            "tests_generated":     len(tests),
+            "reports_generated":   len(reports),
+        }
+
+    if path == "/api/tables":
+        con = duckdb.connect(DB_PATH)
+        results = []
+        for table in TABLES:
+            row_count = con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+            col_count = len(con.execute(f"DESCRIBE {table}").df())
+            results.append({"table": table, "row_count": row_count, "col_count": col_count})
+        con.close()
+        return {"tables": results, "total": len(results)}
+
+    if path.startswith("/api/tables/") and path.endswith("/schema"):
+        table_name = path.split("/")[3]
+        con = duckdb.connect(DB_PATH)
+        schema_df = con.execute(f"DESCRIBE {table_name}").df()
+        con.close()
+        current_schema = json.loads(schema_df.fillna("").to_json(orient="records"))
+        drift_history = []
+        if os.path.exists(SCHEMA_PATH):
+            df = pd.read_csv(SCHEMA_PATH)
+            table_drift = df[df["table"] == table_name]
+            drift_history = json.loads(table_drift.fillna("").to_json(orient="records"))
+        return {
+            "table":          table_name,
+            "current_schema": current_schema,
+            "drift_history":  drift_history,
+            "drift_count":    len(drift_history),
+        }
+
+    if path == "/api/anomalies":
+        anomalies = _load_csv(ANOMALY_PATH)
+        return {
+            "anomalies": anomalies,
+            "total":     len(anomalies),
+            "critical":  sum(1 for a in anomalies if a.get("severity") == "CRITICAL"),
+            "high":      sum(1 for a in anomalies if a.get("severity") == "HIGH"),
+            "medium":    sum(1 for a in anomalies if a.get("severity") == "MEDIUM"),
+        }
+
+    if path == "/api/reports":
+        reports = _load_json(REPORTS_PATH)
+        return {"reports": reports, "total": len(reports)}
+
+    if path == "/api/tests":
+        tests = _load_json(TESTS_JSON)
+        by_table = {}
+        for t in tests:
+            by_table.setdefault(t.get("table", "unknown"), []).append(t)
+        return {
+            "tests":    tests,
+            "total":    len(tests),
+            "by_table": {t: len(v) for t, v in by_table.items()},
+        }
+
+    if path == "/api/lineage":
+        reports = _load_json(REPORTS_PATH)
+        anomalous = {}
+        for r in reports:
+            table    = r.get("table")
+            severity = r.get("severity", "LOW")
+            if table:
+                priority = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+                existing = anomalous.get(table, "OK")
+                if existing == "OK" or priority.index(severity) > priority.index(existing):
+                    anomalous[table] = severity
+        all_nodes = set()
+        for edge in PIPELINE_EDGES:
+            all_nodes.add(edge["source"])
+            all_nodes.add(edge["target"])
+        nodes = [
+            {"id": n, "label": n, "severity": anomalous.get(n, "OK"), "healthy": n not in anomalous}
+            for n in all_nodes
+        ]
+        return {"nodes": nodes, "edges": PIPELINE_EDGES, "anomalous_count": len(anomalous)}
+
+    return None
+
+
+# ─── Public API helpers (signatures unchanged — all page code is identical) ───
+
+def api_get(path):
     try:
-        r = requests.get(f"{API_BASE}{path}", timeout=10)
-        r.raise_for_status()
-        return r.json()
-    except requests.exceptions.ConnectionError:
-        st.error("❌ Cannot connect to API server. Run: `uvicorn src.api.main:app --reload --port 8000`")
+        return _get(path)
+    except Exception as e:
+        st.error(f"Error: {e}")
+        return None
+
+
+def api_post(path):
+    from src.monitoring.schema_monitor import run_schema_monitor
+    from src.monitoring.anomaly_detector import run_anomaly_detector
+
+    try:
+        if path == "/api/run/schema-monitor":
+            drifts = run_schema_monitor(verbose=False)
+            return {
+                "status":  "success",
+                "message": f"Schema monitor complete — {len(drifts)} drift event(s) detected",
+                "count":   len(drifts),
+                "ran_at":  datetime.utcnow().isoformat(),
+            }
+
+        if path == "/api/run/anomaly-detector":
+            anomalies = run_anomaly_detector(verbose=False)
+            return {
+                "status":  "success",
+                "message": f"Anomaly detector complete — {len(anomalies)} anomaly(s) detected",
+                "count":   len(anomalies),
+                "ran_at":  datetime.utcnow().isoformat(),
+            }
+
+        if path == "/api/run/full-pipeline":
+            from src.llm.root_cause_analyzer import run_root_cause_analyzer
+            from src.alerts.slack_alerts import run_slack_alerts
+            reports = run_root_cause_analyzer()
+            if reports:
+                run_slack_alerts()
+            return {
+                "status":  "success",
+                "message": f"Full pipeline complete — {len(reports)} report(s) generated",
+                "count":   len(reports),
+                "ran_at":  datetime.utcnow().isoformat(),
+            }
+
         return None
     except Exception as e:
-        st.error(f"API error: {e}")
-        return None
-
-
-def api_post(path: str):
-    try:
-        r = requests.post(f"{API_BASE}{path}", timeout=60)
-        r.raise_for_status()
-        return r.json()
-    except requests.exceptions.ConnectionError:
-        st.error("❌ Cannot connect to API server.")
-        return None
-    except Exception as e:
-        st.error(f"API error: {e}")
+        st.error(f"Error: {e}")
         return None
 
 
@@ -115,12 +279,8 @@ with st.sidebar:
     )
 
     st.markdown("---")
-    st.markdown("**API Status**")
-    health = api_get("/")
-    if health:
-        st.success("✅ API connected")
-    else:
-        st.error("❌ API offline")
+    st.markdown("**Status**")
+    st.success("✅ Running standalone")
 
     st.markdown("---")
     st.caption("Built with Python · DuckDB · Claude AI")
@@ -347,7 +507,6 @@ elif page == "🗺️ Lineage Graph":
     st.markdown("---")
 
     # Embed the lineage graph HTML
-    import os
     if os.path.exists(LINEAGE_PATH):
         with open(LINEAGE_PATH, "r") as f:
             html_content = f.read()
@@ -409,10 +568,7 @@ elif page == "▶️ Run Pipeline":
     st.subheader("Demo: Inject & Detect")
     st.markdown("Run these commands in your terminal to demo the full pipeline:")
 
-    st.code("""# Terminal 1 — keep API running
-uvicorn src.api.main:app --reload --port 8000
-
-# Terminal 2 — inject anomaly then run pipeline
+    st.code("""# Inject anomaly then run pipeline
 python tests/inject_anomaly.py --scenario null_spike
 python src/llm/root_cause_analyzer.py
 python src/lineage/lineage_graph.py

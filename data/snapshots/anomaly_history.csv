@@ -1,0 +1,3 @@
+detected_at,table,column,metric,current_value,baseline_mean,baseline_std,z_score,pct_change,severity
+2026-02-22T08:28:44.258435,payments,amount,null_pct,0.443303,0.0,0.0,999.0,0.4433,CRITICAL
+2026-02-22T08:28:57.227513,payments,amount,null_pct,0.443303,0.0,0.0,999.0,0.4433,CRITICAL

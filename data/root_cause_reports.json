@@ -1,0 +1,17 @@
+[
+  {
+    "table": "payments",
+    "column": "amount",
+    "metric": "null_pct",
+    "anomaly_summary": "[CRITICAL] payments.amount \u2014 null_pct \u2191 spiked 44.3% (value: 0.4433, z-score: 999.00)",
+    "explanation": "The payments table's amount column has suddenly gone from 0% null values to 44.3% null values, indicating a critical data ingestion or transformation failure that is allowing NULL amounts to be written to production.",
+    "root_cause": "ETL pipeline failure in the payment amount field mapping or calculation step, likely a NULL coalescing function that stopped executing, a JOIN condition that became too restrictive causing unmatched rows to default to NULL, or a data source API returning empty values that are no longer being filtered.",
+    "fixes": [
+      "Immediately check the ETL job logs for the payments table pipeline executed between 2026-02-21 and 2026-02-22 08:28 UTC for errors in the amount field transformation step",
+      "Verify the data source feed (upstream API, database query, or file upload) is still returning valid amount values and hasn't changed its schema or null-handling behavior",
+      "Query the payments table for rows inserted in the last 24 hours with NULL amounts and cross-reference their source IDs against the upstream system to identify which records failed during transformation"
+    ],
+    "severity": "CRITICAL",
+    "generated_at": "2026-02-22T08:29:01.317552"
+  }
+]
