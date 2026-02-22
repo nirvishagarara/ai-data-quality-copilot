@@ -62,39 +62,411 @@ st.set_page_config(
     initial_sidebar_state = "expanded",
 )
 
-# ─── Custom CSS ───────────────────────────────────────────────────────────────
+# ─── Design System ────────────────────────────────────────────────────────────
+
+SEVERITY_COLORS = {
+    "CRITICAL": "#ef233c",
+    "HIGH":     "#f77f00",
+    "MEDIUM":   "#fcbf49",
+    "LOW":      "#06d6a0",
+    "OK":       "#06d6a0",
+}
+
+SEVERITY_BG = {
+    "CRITICAL": "rgba(239,35,60,0.12)",
+    "HIGH":     "rgba(247,127,0,0.12)",
+    "MEDIUM":   "rgba(252,191,73,0.12)",
+    "LOW":      "rgba(6,214,160,0.12)",
+    "OK":       "rgba(6,214,160,0.12)",
+}
+
+# ─── Global CSS ───────────────────────────────────────────────────────────────
 
 st.markdown("""
 <style>
-    /* Sidebar */
-    .css-1d391kg { background-color: #0F1117; }
+/* ── Base ── */
+html, body, [class*="css"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
 
-    /* Metric cards */
-    [data-testid="metric-container"] {
-        background-color: #1a1a2e;
-        border: 1px solid #2E75B6;
-        border-radius: 8px;
-        padding: 16px;
-    }
+/* ── Main background ── */
+.stApp {
+    background: linear-gradient(135deg, #0a0e1a 0%, #0f1629 50%, #0a0e1a 100%);
+}
 
-    /* Severity badges */
-    .badge-critical { background:#FF0000; color:white; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:bold; }
-    .badge-high     { background:#FF8C00; color:white; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:bold; }
-    .badge-medium   { background:#FFD700; color:black; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:bold; }
-    .badge-low      { background:#107C10; color:white; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:bold; }
-    .badge-ok       { background:#107C10; color:white; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:bold; }
+/* ── Sidebar ── */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0d1117 0%, #161b27 100%);
+    border-right: 1px solid rgba(99,102,241,0.2);
+}
+[data-testid="stSidebar"] .stRadio label {
+    color: #94a3b8 !important;
+    font-size: 14px;
+    padding: 6px 0;
+    transition: color 0.2s;
+}
+[data-testid="stSidebar"] .stRadio label:hover {
+    color: #e2e8f0 !important;
+}
 
-    /* Report cards */
-    .report-card {
-        background: #1a1a2e;
-        border-left: 4px solid #FF0000;
-        border-radius: 8px;
-        padding: 16px;
-        margin-bottom: 16px;
-    }
-    .report-card-high   { border-left-color: #FF8C00; }
-    .report-card-medium { border-left-color: #FFD700; }
-    .report-card-low    { border-left-color: #107C10; }
+/* ── Metric cards ── */
+[data-testid="metric-container"] {
+    background: rgba(15,22,41,0.7);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 12px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    transition: border-color 0.3s, transform 0.2s;
+}
+[data-testid="metric-container"]:hover {
+    border-color: rgba(99,102,241,0.7);
+    transform: translateY(-2px);
+}
+[data-testid="metric-container"] [data-testid="stMetricValue"] {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: #e2e8f0 !important;
+}
+[data-testid="metric-container"] [data-testid="stMetricLabel"] {
+    color: #94a3b8 !important;
+    font-size: 0.8rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+[data-testid="metric-container"] [data-testid="stMetricDelta"] {
+    font-size: 0.78rem !important;
+}
+
+/* ── Dataframes ── */
+[data-testid="stDataFrame"] {
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* ── Expanders ── */
+[data-testid="stExpander"] {
+    background: rgba(15,22,41,0.5);
+    border: 1px solid rgba(99,102,241,0.2) !important;
+    border-radius: 10px !important;
+    margin-bottom: 10px;
+}
+[data-testid="stExpander"]:hover {
+    border-color: rgba(99,102,241,0.5) !important;
+}
+
+/* ── Buttons ── */
+.stButton > button {
+    background: linear-gradient(135deg, #4361ee, #7209b7) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+    transition: opacity 0.2s, transform 0.15s !important;
+}
+.stButton > button:hover {
+    opacity: 0.85 !important;
+    transform: translateY(-1px) !important;
+}
+.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #ef233c, #7209b7) !important;
+}
+
+/* ── Selectbox ── */
+[data-testid="stSelectbox"] > div > div {
+    background: rgba(15,22,41,0.8) !important;
+    border: 1px solid rgba(99,102,241,0.3) !important;
+    border-radius: 8px !important;
+    color: #e2e8f0 !important;
+}
+
+/* ── Info/warning/error/success boxes ── */
+[data-testid="stAlert"] {
+    border-radius: 10px !important;
+}
+
+/* ── Divider ── */
+hr {
+    border-color: rgba(99,102,241,0.2) !important;
+}
+
+/* ── Custom components ── */
+.page-header {
+    background: linear-gradient(135deg, rgba(67,97,238,0.15), rgba(114,9,183,0.15));
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+}
+.page-header h1 {
+    margin: 0 0 6px 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+.page-header p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.95rem;
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.kpi-card {
+    background: rgba(15,22,41,0.7);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    transition: border-color 0.3s, transform 0.2s;
+}
+.kpi-card:hover {
+    border-color: rgba(99,102,241,0.6);
+    transform: translateY(-3px);
+}
+.kpi-icon { font-size: 1.8rem; margin-bottom: 8px; }
+.kpi-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #e2e8f0;
+    line-height: 1;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #a5b4fc, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.kpi-value.critical { background: linear-gradient(135deg, #ef233c, #f77f00); -webkit-background-clip: text; background-clip: text; }
+.kpi-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.table-health-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(15,22,41,0.6);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s, transform 0.15s;
+}
+.table-health-card:hover {
+    border-color: rgba(99,102,241,0.5);
+    transform: translateX(3px);
+}
+.table-health-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px currentColor;
+}
+.table-health-name {
+    font-weight: 600;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    flex: 1;
+}
+.table-health-meta {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+.sev-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.report-card {
+    background: rgba(15,22,41,0.7);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-left-width: 4px;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 14px;
+    backdrop-filter: blur(10px);
+}
+.report-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin-bottom: 6px;
+}
+.report-card-meta {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-bottom: 14px;
+}
+.report-section-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+.report-text {
+    font-size: 0.92rem;
+    color: #cbd5e1;
+    line-height: 1.6;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+}
+.fix-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(99,102,241,0.1);
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+.fix-num {
+    background: linear-gradient(135deg, #4361ee, #7209b7);
+    color: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.detail-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 3px 4px 3px 0;
+}
+.detail-pill strong { color: #e2e8f0; }
+
+.pipeline-card {
+    background: rgba(15,22,41,0.7);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 14px;
+    padding: 24px;
+    height: 100%;
+    backdrop-filter: blur(10px);
+    text-align: center;
+}
+.pipeline-card-icon { font-size: 2.4rem; margin-bottom: 12px; }
+.pipeline-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin-bottom: 6px;
+}
+.pipeline-card-desc {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+.pipeline-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: rgba(99,102,241,0.5);
+    padding-top: 60px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(99,102,241,0.2);
+}
+.section-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #e2e8f0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.section-tag {
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    color: #818cf8;
+    font-weight: 600;
+}
+
+.test-type-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.sidebar-brand {
+    background: linear-gradient(135deg, rgba(67,97,238,0.2), rgba(114,9,183,0.2));
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 8px;
+}
+.sidebar-brand-title {
+    font-size: 1rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.sidebar-brand-sub {
+    font-size: 0.7rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #06d6a0;
+    box-shadow: 0 0 8px #06d6a0;
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -137,7 +509,7 @@ def _get(path):
         }
 
     if path == "/api/tables":
-        con = duckdb.connect(DB_PATH)
+        con = duckdb.connect(DB_PATH, read_only=True)
         results = []
         for table in TABLES:
             row_count = con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
@@ -148,7 +520,7 @@ def _get(path):
 
     if path.startswith("/api/tables/") and path.endswith("/schema"):
         table_name = path.split("/")[3]
-        con = duckdb.connect(DB_PATH)
+        con = duckdb.connect(DB_PATH, read_only=True)
         schema_df = con.execute(f"DESCRIBE {table_name}").df()
         con.close()
         current_schema = json.loads(schema_df.fillna("").to_json(orient="records"))
@@ -213,7 +585,7 @@ def _get(path):
     return None
 
 
-# ─── Public API helpers (signatures unchanged — all page code is identical) ───
+# ─── Public API helpers ────────────────────────────────────────────────────────
 
 def api_get(path):
     try:
@@ -265,10 +637,39 @@ def api_post(path):
         return None
 
 
+# ─── Helper renderers ─────────────────────────────────────────────────────────
+
+def sev_badge(severity):
+    color = SEVERITY_COLORS.get(severity, "#888")
+    bg    = SEVERITY_BG.get(severity, "rgba(136,136,136,0.1)")
+    return (f'<span class="sev-badge" style="color:{color};background:{bg};'
+            f'border:1px solid {color}40;">{severity}</span>')
+
+
+def test_type_badge(test_type):
+    colors = {
+        "not_null":          ("#22d3ee", "rgba(34,211,238,0.12)"),
+        "unique":            ("#818cf8", "rgba(129,140,248,0.12)"),
+        "accepted_values":   ("#a78bfa", "rgba(167,139,250,0.12)"),
+        "row_count_between": ("#34d399", "rgba(52,211,153,0.12)"),
+        "value_between":     ("#fb923c", "rgba(251,146,60,0.12)"),
+    }
+    c, bg = colors.get(test_type, ("#94a3b8", "rgba(148,163,184,0.12)"))
+    return (f'<span class="test-type-badge" style="color:{c};background:{bg};'
+            f'border:1px solid {c}40;">{test_type.replace("_"," ")}</span>')
+
+
 # ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 with st.sidebar:
-    st.markdown("## 🔍 Data Quality Copilot")
+    st.markdown("""
+    <div class="sidebar-brand">
+        <div style="font-size:1.8rem;margin-bottom:4px;">🔍</div>
+        <div class="sidebar-brand-title">Data Quality Copilot</div>
+        <div class="sidebar-brand-sub">AI-Powered Observability</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("---")
 
     page = st.radio(
@@ -279,11 +680,17 @@ with st.sidebar:
     )
 
     st.markdown("---")
-    st.markdown("**Status**")
-    st.success("✅ Running standalone")
-
+    st.markdown(
+        '<span class="status-dot"></span><span style="font-size:0.82rem;color:#94a3b8;">Running standalone</span>',
+        unsafe_allow_html=True
+    )
     st.markdown("---")
-    st.caption("Built with Python · DuckDB · Claude AI")
+    st.markdown(
+        '<div style="font-size:0.72rem;color:#475569;text-align:center;line-height:1.8;">'
+        'Python &nbsp;·&nbsp; DuckDB &nbsp;·&nbsp; Claude AI<br>'
+        'Streamlit Cloud</div>',
+        unsafe_allow_html=True
+    )
 
 
 # ══════════════════════════════════════════════════════════
@@ -291,55 +698,97 @@ with st.sidebar:
 # ══════════════════════════════════════════════════════════
 
 if page == "📊 Dashboard":
-    st.title("📊 Dashboard")
-    st.markdown("Real-time overview of your data pipeline health.")
-    st.markdown("---")
+
+    st.markdown("""
+    <div class="page-header">
+        <h1>📊 Dashboard</h1>
+        <p>Real-time overview of your data pipeline health powered by AI-driven monitoring.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     summary = api_get("/api/summary")
     if summary:
-        col1, col2, col3, col4, col5 = st.columns(5)
-        col1.metric("Tables Monitored",  summary["tables_monitored"])
-        col2.metric("Anomalies Detected", summary["anomalies_total"],
-                    delta=f"{summary['anomalies_critical']} critical",
-                    delta_color="inverse")
-        col3.metric("Schema Drift Events", summary["schema_drift_events"])
-        col4.metric("Tests Generated",   summary["tests_generated"])
-        col5.metric("LLM Reports",       summary["reports_generated"])
+        c = summary.get("anomalies_critical", 0)
+        crit_class = "critical" if c > 0 else ""
+        st.markdown(f"""
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon">🗄️</div>
+                <div class="kpi-value">{summary["tables_monitored"]}</div>
+                <div class="kpi-label">Tables Monitored</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🚨</div>
+                <div class="kpi-value {crit_class}">{summary["anomalies_total"]}</div>
+                <div class="kpi-label">Anomalies Detected</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">📐</div>
+                <div class="kpi-value">{summary["schema_drift_events"]}</div>
+                <div class="kpi-label">Schema Drift Events</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🧪</div>
+                <div class="kpi-value">{summary["tests_generated"]}</div>
+                <div class="kpi-label">Tests Generated</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🤖</div>
+                <div class="kpi-value">{summary["reports_generated"]}</div>
+                <div class="kpi-label">LLM Reports</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown("---")
+    col_left, col_right = st.columns([1, 1], gap="large")
 
-    col_left, col_right = st.columns([1, 1])
-
-    # Table health
     with col_left:
-        st.subheader("Table Health")
-        tables = api_get("/api/tables")
+        st.markdown('<div class="section-header"><h3>🗄️ Table Health</h3></div>', unsafe_allow_html=True)
+        tables  = api_get("/api/tables")
         reports = api_get("/api/reports")
 
         if tables and reports:
-            anomalous = {r["table"]: r["severity"] for r in reports.get("reports", [])}
+            anomalous_map = {r["table"]: r["severity"] for r in reports.get("reports", [])}
 
             for t in tables.get("tables", []):
                 name     = t["table"]
-                severity = anomalous.get(name, "OK")
-                icon     = {"CRITICAL":"🔴","HIGH":"🟠","MEDIUM":"🟡","LOW":"🟢","OK":"✅"}.get(severity,"✅")
-                st.markdown(
-                    f"{icon} **{name}** — {t['row_count']:,} rows · {t['col_count']} columns"
-                    f"{'  `' + severity + '`' if severity != 'OK' else ''}"
-                )
+                severity = anomalous_map.get(name, "OK")
+                color    = SEVERITY_COLORS.get(severity, "#06d6a0")
+                badge    = "" if severity == "OK" else sev_badge(severity)
+                st.markdown(f"""
+                <div class="table-health-card">
+                    <div class="table-health-dot" style="background:{color};color:{color};"></div>
+                    <div class="table-health-name">{name}</div>
+                    <div class="table-health-meta">{t['row_count']:,} rows &nbsp;·&nbsp; {t['col_count']} cols</div>
+                    {badge}
+                </div>
+                """, unsafe_allow_html=True)
 
-    # Recent anomalies
     with col_right:
-        st.subheader("Recent Anomalies")
         anomalies = api_get("/api/anomalies")
-        if anomalies and anomalies["anomalies"]:
+
+        # Severity breakdown mini-chart
+        if anomalies and anomalies["total"] > 0:
+            n_crit = anomalies.get("critical", 0)
+            n_high = anomalies.get("high", 0)
+            n_med  = anomalies.get("medium", 0)
+            n_low  = anomalies["total"] - n_crit - n_high - n_med
+
+            st.markdown('<div class="section-header"><h3>📊 Severity Breakdown</h3></div>', unsafe_allow_html=True)
+            chart_df = pd.DataFrame({
+                "Severity": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+                "Count":    [n_crit, n_high, n_med, n_low],
+            }).set_index("Severity")
+            st.bar_chart(chart_df, color="#4361ee", height=180)
+
+            st.markdown('<div class="section-header" style="margin-top:20px;"><h3>⚡ Recent Anomalies</h3></div>', unsafe_allow_html=True)
             df = pd.DataFrame(anomalies["anomalies"])
-            # Show last 8
-            recent = df.tail(8)[["table","column","metric","severity","pct_change"]].copy()
+            recent = df.tail(6)[["table", "column", "metric", "severity", "pct_change"]].copy()
             recent["pct_change"] = recent["pct_change"].apply(lambda x: f"{float(x)*100:.1f}%")
             st.dataframe(recent, use_container_width=True, hide_index=True)
         else:
-            st.success("✅ No anomalies detected")
+            st.markdown('<div class="section-header"><h3>⚡ Recent Anomalies</h3></div>', unsafe_allow_html=True)
+            st.success("✅ All clear — no anomalies detected")
 
 
 # ══════════════════════════════════════════════════════════
@@ -347,46 +796,74 @@ if page == "📊 Dashboard":
 # ══════════════════════════════════════════════════════════
 
 elif page == "🚨 Anomalies":
-    st.title("🚨 Anomaly Explorer")
-    st.markdown("All detected anomalies with AI-generated root-cause explanations.")
-    st.markdown("---")
+
+    st.markdown("""
+    <div class="page-header">
+        <h1>🚨 Anomaly Explorer</h1>
+        <p>All detected anomalies with AI-generated root-cause analysis and fix recommendations.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     reports = api_get("/api/reports")
 
     if reports and reports["reports"]:
+        total = reports["total"]
+        st.markdown(
+            f'<p style="color:#64748b;margin-bottom:20px;">{total} report{"s" if total != 1 else ""} found</p>',
+            unsafe_allow_html=True
+        )
+
         for report in reports["reports"]:
             severity = report.get("severity", "LOW")
-            icon     = {"CRITICAL":"🔴","HIGH":"🟠","MEDIUM":"🟡","LOW":"🟢"}.get(severity,"⚪")
-            color    = {"CRITICAL":"#FF0000","HIGH":"#FF8C00","MEDIUM":"#FFD700","LOW":"#107C10"}.get(severity,"#888")
+            color    = SEVERITY_COLORS.get(severity, "#888")
+            bg       = SEVERITY_BG.get(severity, "rgba(136,136,136,0.1)")
 
             with st.expander(
-                f"{icon} [{severity}]  {report['table']}.{report['column']} — {report['metric']}",
+                f"[{severity}]  {report['table']}.{report['column']} — {report['metric']}",
                 expanded = severity in ["CRITICAL", "HIGH"]
             ):
-                col1, col2 = st.columns([2, 1])
+                col1, col2 = st.columns([3, 1])
 
                 with col1:
-                    st.markdown("**📢 What happened**")
-                    st.info(report.get("explanation", "N/A"))
-
-                    st.markdown("**🔍 Root cause**")
-                    st.warning(report.get("root_cause", "N/A"))
-
-                    st.markdown("**🔧 Suggested fixes**")
-                    for i, fix in enumerate(report.get("fixes", []), 1):
-                        st.markdown(f"{i}. {fix}")
+                    st.markdown(
+                        f'<div class="report-section-label">📢 What happened</div>'
+                        f'<div class="report-text">{report.get("explanation","N/A")}</div>',
+                        unsafe_allow_html=True
+                    )
+                    st.markdown(
+                        f'<div class="report-section-label">🔍 Root cause</div>'
+                        f'<div class="report-text">{report.get("root_cause","N/A")}</div>',
+                        unsafe_allow_html=True
+                    )
+                    fixes = report.get("fixes", [])
+                    if fixes:
+                        items = "".join(
+                            f'<div class="fix-item"><div class="fix-num">{i}</div><div>{f}</div></div>'
+                            for i, f in enumerate(fixes, 1)
+                        )
+                        st.markdown(
+                            f'<div class="report-section-label">🔧 Suggested fixes</div>{items}',
+                            unsafe_allow_html=True
+                        )
 
                 with col2:
-                    st.markdown("**Details**")
-                    st.markdown(f"- **Table:** `{report['table']}`")
-                    st.markdown(f"- **Column:** `{report['column']}`")
-                    st.markdown(f"- **Metric:** `{report['metric']}`")
-                    st.markdown(f"- **Severity:** `{severity}`")
-                    detected = report.get("generated_at", "")[:19]
-                    st.markdown(f"- **Detected:** `{detected}`")
+                    detected = report.get("generated_at", "")[:19].replace("T", " ")
+                    st.markdown(f"""
+                    <div style="margin-top:4px;">
+                        <div class="report-section-label">Details</div>
+                        <div style="margin-top:10px;">
+                            <div class="detail-pill"><strong>Table</strong> {report['table']}</div>
+                            <div class="detail-pill"><strong>Column</strong> {report['column']}</div>
+                            <div class="detail-pill"><strong>Metric</strong> {report['metric']}</div>
+                            <div class="detail-pill" style="background:{bg};border-color:{color}40;">
+                                <strong style="color:{color};">⬤</strong>&nbsp;{severity}
+                            </div>
+                            <div class="detail-pill"><strong>At</strong> {detected}</div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
     else:
-        st.success("✅ No anomaly reports found. Run the pipeline to generate reports.")
-        st.info("Go to **▶️ Run Pipeline** to trigger a monitoring run.")
+        st.info("No anomaly reports found. Go to **▶️ Run Pipeline** to trigger a monitoring run.")
 
 
 # ══════════════════════════════════════════════════════════
@@ -394,9 +871,13 @@ elif page == "🚨 Anomalies":
 # ══════════════════════════════════════════════════════════
 
 elif page == "📐 Schema Monitor":
-    st.title("📐 Schema Monitor")
-    st.markdown("Track schema changes across all tables.")
-    st.markdown("---")
+
+    st.markdown("""
+    <div class="page-header">
+        <h1>📐 Schema Monitor</h1>
+        <p>Track column additions, deletions, and type changes across all tables over time.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     tables = api_get("/api/tables")
     if not tables:
@@ -408,17 +889,28 @@ elif page == "📐 Schema Monitor":
     if selected:
         schema = api_get(f"/api/tables/{selected}/schema")
         if schema:
-            col1, col2 = st.columns([1, 1])
+            dc = schema["drift_count"]
+            drift_label = (
+                f'<span class="sev-badge" style="color:#ef233c;background:rgba(239,35,60,0.12);border:1px solid rgba(239,35,60,0.3);">'
+                f'{dc} drift event{"s" if dc != 1 else ""}</span>'
+                if dc > 0 else
+                f'<span class="sev-badge" style="color:#06d6a0;background:rgba(6,214,160,0.12);border:1px solid rgba(6,214,160,0.3);">No drift</span>'
+            )
+
+            col1, col2 = st.columns([1, 1], gap="large")
 
             with col1:
-                st.subheader("Current Schema")
+                st.markdown('<div class="section-header"><h3>Current Schema</h3></div>', unsafe_allow_html=True)
                 df = pd.DataFrame(schema["current_schema"])
                 if not df.empty:
                     display_cols = [c for c in ["column_name","column_type","null","key","default"] if c in df.columns]
                     st.dataframe(df[display_cols], use_container_width=True, hide_index=True)
 
             with col2:
-                st.subheader(f"Drift History ({schema['drift_count']} events)")
+                st.markdown(
+                    f'<div class="section-header"><h3>Drift History</h3>&nbsp;{drift_label}</div>',
+                    unsafe_allow_html=True
+                )
                 if schema["drift_history"]:
                     drift_df = pd.DataFrame(schema["drift_history"])
                     st.dataframe(drift_df, use_container_width=True, hide_index=True)
@@ -431,58 +923,78 @@ elif page == "📐 Schema Monitor":
 # ══════════════════════════════════════════════════════════
 
 elif page == "🧪 Tests":
-    st.title("🧪 Auto-Generated Tests")
-    st.markdown("Data quality tests generated automatically from 30-day historical profiles.")
-    st.markdown("---")
+
+    st.markdown("""
+    <div class="page-header">
+        <h1>🧪 Auto-Generated Tests</h1>
+        <p>Data quality tests generated automatically from 30-day historical column profiles.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     tests = api_get("/api/tests")
     if tests:
-        # Summary by table
-        st.subheader("Tests by Table")
         by_table = tests.get("by_table", {})
         cols     = st.columns(len(by_table))
         for i, (table, count) in enumerate(by_table.items()):
             cols[i].metric(table, count)
 
-        st.markdown(f"**Total: {tests['total']} tests generated**")
+        st.markdown(
+            f'<p style="color:#64748b;margin:12px 0 20px;">'
+            f'<strong style="color:#818cf8;">{tests["total"]}</strong> tests generated across {len(by_table)} tables</p>',
+            unsafe_allow_html=True
+        )
+
         st.markdown("---")
 
-        # Filter by table
-        all_tests   = tests.get("tests", [])
-        table_names = sorted(set(t["table"] for t in all_tests))
-        selected    = st.selectbox("Filter by table", ["All"] + table_names)
-
+        filter_col1, filter_col2 = st.columns(2)
+        with filter_col1:
+            all_tests   = tests.get("tests", [])
+            table_names = sorted(set(t["table"] for t in all_tests))
+            selected    = st.selectbox("Filter by table", ["All"] + table_names)
         filtered = all_tests if selected == "All" else [t for t in all_tests if t["table"] == selected]
 
-        # Filter by test type
-        test_types = sorted(set(t["test_type"] for t in filtered))
-        selected_type = st.selectbox("Filter by test type", ["All"] + test_types)
+        with filter_col2:
+            test_types    = sorted(set(t["test_type"] for t in filtered))
+            selected_type = st.selectbox("Filter by test type", ["All"] + test_types)
         if selected_type != "All":
             filtered = [t for t in filtered if t["test_type"] == selected_type]
 
-        st.markdown(f"Showing **{len(filtered)}** tests")
-        st.markdown("---")
+        st.markdown(
+            f'<p style="color:#64748b;margin:12px 0 16px;">Showing <strong style="color:#e2e8f0;">{len(filtered)}</strong> tests</p>',
+            unsafe_allow_html=True
+        )
+
+        icons = {
+            "not_null":          "🚫",
+            "unique":            "🔑",
+            "accepted_values":   "📋",
+            "row_count_between": "📊",
+            "value_between":     "📏",
+        }
 
         for test in filtered:
-            icon = {
-                "not_null":         "🚫",
-                "unique":           "🔑",
-                "accepted_values":  "📋",
-                "row_count_between":"📊",
-                "value_between":    "📏",
-            }.get(test["test_type"], "🧪")
-
-            with st.expander(f"{icon} {test['plain_english']}"):
+            icon = icons.get(test["test_type"], "🧪")
+            with st.expander(f"{icon}  {test['plain_english']}"):
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    st.markdown(f"**Test type:** `{test['test_type']}`")
-                    st.markdown(f"**Table:** `{test['table']}`")
-                    st.markdown(f"**Column:** `{test['column']}`")
+                    st.markdown(
+                        f'<div style="margin-bottom:10px;">{test_type_badge(test["test_type"])}</div>'
+                        f'<div class="detail-pill"><strong>Table</strong> {test["table"]}</div>'
+                        f'<div class="detail-pill"><strong>Column</strong> {test["column"]}</div>',
+                        unsafe_allow_html=True
+                    )
                 with col2:
-                    st.markdown(f"**Why generated:**")
-                    st.caption(test.get("reason", ""))
+                    st.markdown(
+                        f'<div class="report-section-label">Why generated</div>'
+                        f'<div style="font-size:0.85rem;color:#94a3b8;">{test.get("reason","")}</div>',
+                        unsafe_allow_html=True
+                    )
                     if test.get("parameters"):
-                        st.markdown(f"**Parameters:** `{test['parameters']}`")
+                        st.markdown(
+                            f'<div class="report-section-label" style="margin-top:10px;">Parameters</div>'
+                            f'<code style="font-size:0.8rem;color:#818cf8;">{test["parameters"]}</code>',
+                            unsafe_allow_html=True
+                        )
 
 
 # ══════════════════════════════════════════════════════════
@@ -490,23 +1002,36 @@ elif page == "🧪 Tests":
 # ══════════════════════════════════════════════════════════
 
 elif page == "🗺️ Lineage Graph":
-    st.title("🗺️ Pipeline Lineage Graph")
-    st.markdown("Interactive graph showing data flow between tables. Anomalous nodes are highlighted.")
-    st.markdown("---")
 
-    # Show anomaly status
+    st.markdown("""
+    <div class="page-header">
+        <h1>🗺️ Pipeline Lineage Graph</h1>
+        <p>Interactive graph showing data flow between tables. Anomalous nodes are highlighted in red.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
     lineage = api_get("/api/lineage")
     if lineage:
         if lineage["anomalous_count"] > 0:
-            anomalous = [n for n in lineage["nodes"] if not n["healthy"]]
-            for node in anomalous:
-                st.error(f"⚠️ **{node['id']}** has an active {node['severity']} anomaly")
+            anomalous_nodes = [n for n in lineage["nodes"] if not n["healthy"]]
+            for node in anomalous_nodes:
+                color = SEVERITY_COLORS.get(node["severity"], "#888")
+                st.markdown(
+                    f'<div style="background:rgba(239,35,60,0.1);border:1px solid rgba(239,35,60,0.3);'
+                    f'border-radius:8px;padding:10px 16px;margin-bottom:8px;font-size:0.9rem;color:#ef233c;">'
+                    f'⚠️ <strong>{node["id"]}</strong> — active {sev_badge(node["severity"])} anomaly</div>',
+                    unsafe_allow_html=True
+                )
         else:
-            st.success("✅ All pipeline nodes are healthy")
+            st.markdown(
+                '<div style="background:rgba(6,214,160,0.1);border:1px solid rgba(6,214,160,0.3);'
+                'border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:0.9rem;color:#06d6a0;">'
+                '✅ All pipeline nodes are healthy</div>',
+                unsafe_allow_html=True
+            )
 
     st.markdown("---")
 
-    # Embed the lineage graph HTML
     if os.path.exists(LINEAGE_PATH):
         with open(LINEAGE_PATH, "r") as f:
             html_content = f.read()
@@ -521,15 +1046,25 @@ elif page == "🗺️ Lineage Graph":
 # ══════════════════════════════════════════════════════════
 
 elif page == "▶️ Run Pipeline":
-    st.title("▶️ Run Pipeline")
-    st.markdown("Trigger monitoring runs directly from the dashboard.")
-    st.markdown("---")
 
-    col1, col2, col3 = st.columns(3)
+    st.markdown("""
+    <div class="page-header">
+        <h1>▶️ Run Pipeline</h1>
+        <p>Trigger monitoring runs directly from the dashboard. Results update in real time.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col1, arrow1, col2, arrow2, col3 = st.columns([5, 1, 5, 1, 5])
 
     with col1:
-        st.subheader("Schema Monitor")
-        st.caption("Detects column drift against baseline")
+        st.markdown("""
+        <div class="pipeline-card">
+            <div class="pipeline-card-icon">📐</div>
+            <div class="pipeline-card-title">Schema Monitor</div>
+            <div class="pipeline-card-desc">Compares current table schemas against the baseline snapshot to detect column additions, drops, and type changes.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
         if st.button("▶ Run Schema Monitor", use_container_width=True):
             with st.spinner("Running schema monitor..."):
                 result = api_post("/api/run/schema-monitor")
@@ -539,9 +1074,18 @@ elif page == "▶️ Run Pipeline":
                 else:
                     st.success(f"✅ {result['message']}")
 
+    with arrow1:
+        st.markdown('<div class="pipeline-arrow">→</div>', unsafe_allow_html=True)
+
     with col2:
-        st.subheader("Anomaly Detector")
-        st.caption("Detects statistical anomalies")
+        st.markdown("""
+        <div class="pipeline-card">
+            <div class="pipeline-card-icon">📊</div>
+            <div class="pipeline-card-title">Anomaly Detector</div>
+            <div class="pipeline-card-desc">Uses Z-score analysis on 30-day history to detect statistical anomalies in row counts, null rates, and value distributions.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
         if st.button("▶ Run Anomaly Detector", use_container_width=True):
             with st.spinner("Running anomaly detector..."):
                 result = api_post("/api/run/anomaly-detector")
@@ -551,11 +1095,20 @@ elif page == "▶️ Run Pipeline":
                 else:
                     st.success(f"✅ {result['message']}")
 
+    with arrow2:
+        st.markdown('<div class="pipeline-arrow">→</div>', unsafe_allow_html=True)
+
     with col3:
-        st.subheader("Full Pipeline")
-        st.caption("Detect → Explain with AI → Alert Slack")
+        st.markdown("""
+        <div class="pipeline-card">
+            <div class="pipeline-card-icon">🤖</div>
+            <div class="pipeline-card-title">Full Pipeline</div>
+            <div class="pipeline-card-desc">Runs detection, calls Claude AI to generate root-cause analysis and fix recommendations, then sends Slack alerts.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
         if st.button("▶ Run Full Pipeline", type="primary", use_container_width=True):
-            with st.spinner("Running full pipeline... (this calls Claude API)"):
+            with st.spinner("Running full pipeline… (calls Claude API)"):
                 result = api_post("/api/run/full-pipeline")
             if result:
                 if result["count"] > 0:
@@ -565,9 +1118,12 @@ elif page == "▶️ Run Pipeline":
                     st.info(f"ℹ️ {result['message']}")
 
     st.markdown("---")
-    st.subheader("Demo: Inject & Detect")
-    st.markdown("Run these commands in your terminal to demo the full pipeline:")
-
+    st.markdown(
+        '<div class="section-header"><h3>Demo: Inject & Detect</h3>'
+        '<span class="section-tag">Terminal</span></div>',
+        unsafe_allow_html=True
+    )
+    st.markdown('<p style="color:#64748b;font-size:0.85rem;margin-bottom:12px;">Run these commands locally to demo the full anomaly detection pipeline:</p>', unsafe_allow_html=True)
     st.code("""# Inject anomaly then run pipeline
 python tests/inject_anomaly.py --scenario null_spike
 python src/llm/root_cause_analyzer.py
