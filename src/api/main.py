@@ -107,7 +107,7 @@ def load_csv(path: str):
     if not os.path.exists(path):
         return []
     df = pd.read_csv(path)
-    return df.to_dict(orient="records")
+    return json.loads(df.fillna("").to_json(orient="records"))
 
 
 # ─── Routes ───────────────────────────────────────────────────────────────────
@@ -160,7 +160,7 @@ def get_table_schema(table_name: str):
         if os.path.exists(SCHEMA_PATH):
             df = pd.read_csv(SCHEMA_PATH)
             table_drift = df[df["table"] == table_name]
-            drift_history = table_drift.to_dict(orient="records")
+            drift_history = json.loads(table_drift.fillna("").to_json(orient="records"))
 
         return {
             "table":         table_name,
