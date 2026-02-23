@@ -21,6 +21,7 @@ Usage:
 """
 
 import os
+import sys
 import json
 from datetime import datetime
 from dataclasses import dataclass, field
@@ -29,28 +30,13 @@ import duckdb
 import pandas as pd
 import numpy as np
 
-# ─── Config ───────────────────────────────────────────────────────────────────
-
-DB_PATH       = "data/warehouse.duckdb"
-SNAPSHOTS_DIR = "data/snapshots"
-YAML_OUTPUT   = "data/generated_tests.yaml"
-JSON_OUTPUT   = "data/generated_tests.json"
-
-TABLES_TO_PROFILE = [
-    "customers",
-    "products",
-    "orders",
-    "order_items",
-    "payments",
-    "events",
-]
-
-# Thresholds for test generation decisions
-NULL_TOLERANCE         = 0.01   # columns with <1% nulls get a not_null test
-UNIQUE_TOLERANCE       = 0.99   # columns with >99% unique values get a unique test
-MAX_CARDINALITY        = 20     # columns with <=20 distinct values get accepted_values
-ROW_COUNT_BUFFER       = 0.20   # row_count_between uses ±20% of historical mean
-VALUE_BUFFER           = 0.25   # value_between uses ±25% of historical min/max
+# Add project root to path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from src.config import (
+    DB_PATH, TABLES, SNAPSHOTS_DIR, TESTS_JSON, TESTS_YAML,
+    NULL_TOLERANCE, UNIQUE_TOLERANCE, MAX_CARDINALITY,
+    ROW_COUNT_BUFFER, VALUE_BUFFER,
+)
 
 
 # ─── Data class ───────────────────────────────────────────────────────────────
@@ -298,7 +284,7 @@ def write_yaml(all_tests: list):
 
         lines.append("")
 
-    with open(YAML_OUTPUT, "w") as f:
+    with open(TESTS_YAML, "w") as f:
         f.write("\n".join(lines))
 
 
@@ -315,7 +301,7 @@ def write_json(all_tests: list):
         }
         for t in all_tests
     ]
-    with open(JSON_OUTPUT, "w") as f:
+    with open(TESTS_JSON, "w") as f:
         json.dump(data, f, indent=2)
 
 
@@ -328,7 +314,7 @@ def run_test_generator() -> list:
     con = duckdb.connect(DB_PATH)
     all_tests = []
 
-    for table in TABLES_TO_PROFILE:
+    for table in TABLES:
         print(f"\n  📋 Profiling: {table}")
 
         profile = profile_table(con, table)
@@ -359,8 +345,8 @@ def run_test_generator() -> list:
 
     print(f"\n{'─'*55}")
     print(f"  Total tests generated : {len(all_tests)}")
-    print(f"  YAML output           : {YAML_OUTPUT}")
-    print(f"  JSON output           : {JSON_OUTPUT}")
+    print(f"  YAML output           : {TESTS_YAML}")
+    print(f"  JSON output           : {TESTS_JSON}")
 
     # Print all tests in plain English
     print(f"\n📝  All generated tests:\n")

@@ -8,6 +8,9 @@ faker
 scikit-learn
 scipy
 
+# Config
+pyyaml
+
 # LLM
 anthropic
 python-dotenv

@@ -54,11 +54,11 @@ def clean_warehouse(tmp_path):
 def redirect_outputs(tmp_path, monkeypatch):
     """Redirect all write-side paths to tmp_path to avoid polluting real files."""
     monkeypatch.setattr(
-        "src.monitoring.anomaly_detector.HISTORY_PATH",
+        "src.monitoring.anomaly_detector.ANOMALY_PATH",
         str(tmp_path / "anomaly_history.csv"),
     )
     monkeypatch.setattr(
-        "src.monitoring.schema_monitor.HISTORY_PATH",
+        "src.monitoring.schema_monitor.SCHEMA_PATH",
         str(tmp_path / "schema_history.csv"),
     )
     monkeypatch.setattr(

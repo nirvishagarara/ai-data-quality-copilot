@@ -20,6 +20,7 @@ Usage:
 """
 
 import os
+import sys
 import json
 from datetime import datetime
 
@@ -28,12 +29,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Add project root to path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from src.config import REPORTS_PATH, ANOMALY_PATH, SCHEMA_PATH
+
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-WEBHOOK_URL    = os.getenv("SLACK_WEBHOOK_URL")
-REPORTS_PATH   = "data/root_cause_reports.json"
-ANOMALY_PATH   = "data/snapshots/anomaly_history.csv"
-SCHEMA_PATH    = "data/snapshots/schema_history.csv"
+WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 
 SEVERITY_COLORS = {
     "CRITICAL": "#FF0000",

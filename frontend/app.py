@@ -30,29 +30,13 @@ import duckdb
 import pandas as pd
 import streamlit as st
 
-# ─── Config ───────────────────────────────────────────────────────────────────
+from src.config import (
+    DB_PATH, TABLES, REPORTS_PATH, TESTS_JSON,
+    ANOMALY_PATH, SCHEMA_PATH, LINEAGE_PATH, PIPELINE_EDGES,
+)
 
-DB_PATH      = "data/warehouse.duckdb"
-REPORTS_PATH = "data/root_cause_reports.json"
-TESTS_JSON   = "data/generated_tests.json"
-ANOMALY_PATH = "data/snapshots/anomaly_history.csv"
-SCHEMA_PATH  = "data/snapshots/schema_history.csv"
-LINEAGE_PATH = "data/lineage_graph.html"
-
-TABLES = ["customers", "products", "orders", "order_items", "payments", "events"]
-
-PIPELINE_EDGES = [
-    {"source": "customers",   "target": "orders",           "label": "customer_id"},
-    {"source": "products",    "target": "order_items",      "label": "product_id"},
-    {"source": "orders",      "target": "order_items",      "label": "order_id"},
-    {"source": "orders",      "target": "payments",         "label": "order_id"},
-    {"source": "order_items", "target": "orders",           "label": "aggregates to"},
-    {"source": "customers",   "target": "events",           "label": "customer_id"},
-    {"source": "orders",      "target": "revenue_report",   "label": "feeds"},
-    {"source": "payments",    "target": "revenue_report",   "label": "feeds"},
-    {"source": "order_items", "target": "revenue_report",   "label": "feeds"},
-    {"source": "events",      "target": "behaviour_report", "label": "feeds"},
-]
+# Convert config edges (list of dicts) to the format used by the frontend
+# PIPELINE_EDGES from config are already dicts: {"source": ..., "target": ..., "label": ...}
 
 st.set_page_config(
     page_title = "Data Quality Copilot",
@@ -105,6 +89,8 @@ html, body, [class*="css"] {
 [data-testid="stSidebar"] {
     background: #0f172a !important;
     border-right: 1px solid #1e293b;
+    min-width: 260px !important;
+    width: 260px !important;
 }
 [data-testid="stSidebar"] * {
     color: #94a3b8 !important;
@@ -114,12 +100,15 @@ html, body, [class*="css"] {
 }
 [data-testid="stSidebar"] .stRadio label {
     color: #94a3b8 !important;
-    font-size: 0.875rem !important;
+    font-size: 0.85rem !important;
     font-weight: 500 !important;
-    padding: 10px 14px !important;
+    padding: 8px 14px !important;
     border-radius: 8px !important;
     transition: background 0.15s, color 0.15s;
     cursor: pointer;
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 [data-testid="stSidebar"] .stRadio label:hover {
     background: rgba(255,255,255,0.06) !important;
@@ -495,9 +484,9 @@ hr {
 
 /* Sidebar brand */
 .sb-brand {
-    padding: 20px 16px 16px;
+    padding: 16px 16px 12px;
     border-bottom: 1px solid #1e293b;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 .sb-logo {
     display: flex;
@@ -746,7 +735,7 @@ with st.sidebar:
     )
 
     st.markdown("""
-    <div style="position:absolute;bottom:20px;left:16px;right:16px;">
+    <div style="margin-top:40px;padding:0 16px;">
         <div style="font-size:0.7rem;color:#334155;text-align:center;line-height:1.8;">
             Python · DuckDB · Claude AI
         </div>

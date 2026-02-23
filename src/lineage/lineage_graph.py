@@ -21,51 +21,40 @@ Usage:
 """
 
 import os
+import sys
 import json
 
 import networkx as nx
 from pyvis.network import Network
 
-# ─── Config ───────────────────────────────────────────────────────────────────
+# Add project root to path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from src.config import REPORTS_PATH, SCHEMA_PATH, LINEAGE_PATH as OUTPUT_PATH, PIPELINE_EDGES as PIPELINE_EDGES_DICTS
 
-REPORTS_PATH  = "data/root_cause_reports.json"
-SCHEMA_PATH   = "data/snapshots/schema_history.csv"
-OUTPUT_PATH   = "data/lineage_graph.html"
-
-# ─── Pipeline definition ──────────────────────────────────────────────────────
-# This defines the data flow between your tables.
-# Format: (source_table, destination_table, label)
-# In a real project this would be parsed from dbt manifest.json or Airflow DAGs.
-
+# Convert dict-format edges from config to tuples for internal use
 PIPELINE_EDGES = [
-    ("customers",   "orders",        "customer_id"),
-    ("products",    "order_items",   "product_id"),
-    ("orders",      "order_items",   "order_id"),
-    ("orders",      "payments",      "order_id"),
-    ("order_items", "orders",        "aggregates to"),
-    ("customers",   "events",        "customer_id"),
-    ("orders",      "revenue_report","feeds"),
-    ("payments",    "revenue_report","feeds"),
-    ("order_items", "revenue_report","feeds"),
-    ("events",      "behaviour_report", "feeds"),
+    (e["source"], e["target"], e["label"]) for e in PIPELINE_EDGES_DICTS
 ]
 
-# Table descriptions shown on hover
-TABLE_DESCRIPTIONS = {
-    "customers":        "5,000 rows · Source: CRM system",
-    "products":         "500 rows · Source: Product catalog",
-    "orders":           "~30,000 rows · Source: Order management system",
-    "order_items":      "~60,000 rows · Source: Order management system",
-    "payments":         "~25,000 rows · Source: Payment gateway",
-    "events":           "60,000 rows · Source: Clickstream tracker",
-    "revenue_report":   "Downstream dashboard · Consumers: Finance team",
-    "behaviour_report": "Downstream dashboard · Consumers: Product team",
-}
 
-# Node types — affects shape in the graph
-SOURCE_TABLES = {"customers", "products"}
-FACT_TABLES   = {"orders", "order_items", "payments", "events"}
-REPORTS       = {"revenue_report", "behaviour_report"}
+def _auto_discover_node_types(edges):
+    """
+    Auto-discovers node types from the edge list:
+    - Source tables: only appear as sources, never as targets
+    - Report/dashboard nodes: only appear as targets, never as sources
+    - Fact tables: everything else
+    """
+    sources = set()
+    targets = set()
+    for src, dst, _ in edges:
+        sources.add(src)
+        targets.add(dst)
+
+    source_only = sources - targets  # pure source tables
+    target_only = targets - sources  # pure downstream (reports/dashboards)
+    fact_tables = (sources & targets)  # appear on both sides
+
+    return source_only, fact_tables, target_only
 
 
 # ─── Load anomalous tables ────────────────────────────────────────────────────
@@ -97,7 +86,7 @@ def get_anomalous_tables() -> dict:
 
 # ─── Node styling ─────────────────────────────────────────────────────────────
 
-def get_node_style(table: str, severity: str) -> dict:
+def get_node_style(table: str, severity: str, source_tables: set, fact_tables: set, report_tables: set) -> dict:
     """Returns color and shape based on table type and anomaly status."""
 
     # Anomaly colors override everything
@@ -109,20 +98,20 @@ def get_node_style(table: str, severity: str) -> dict:
         return {"color": "#FFD700", "border": "#B8860B", "font_color": "black"}
 
     # Default colors by table type
-    if table in SOURCE_TABLES:
+    if table in source_tables:
         return {"color": "#2E75B6", "border": "#1F4E79", "font_color": "white"}
-    elif table in FACT_TABLES:
+    elif table in fact_tables:
         return {"color": "#107C10", "border": "#054005", "font_color": "white"}
-    elif table in REPORTS:
+    elif table in report_tables:
         return {"color": "#7030A0", "border": "#4B0082", "font_color": "white"}
     else:
         return {"color": "#595959", "border": "#333333", "font_color": "white"}
 
 
-def get_node_shape(table: str) -> str:
-    if table in SOURCE_TABLES:
+def get_node_shape(table: str, source_tables: set, report_tables: set) -> str:
+    if table in source_tables:
         return "database"
-    elif table in REPORTS:
+    elif table in report_tables:
         return "diamond"
     else:
         return "box"
@@ -135,6 +124,9 @@ def build_lineage_graph(anomalous_tables: dict) -> Network:
     Builds the NetworkX graph and converts it to a Pyvis interactive network.
     """
     G = nx.DiGraph()
+
+    # Auto-discover node types from edges
+    source_tables, fact_tables, report_tables = _auto_discover_node_types(PIPELINE_EDGES)
 
     # Add all nodes
     all_tables = set()
@@ -161,13 +153,12 @@ def build_lineage_graph(anomalous_tables: dict) -> Network:
     # Add nodes with styling
     for table in G.nodes:
         severity  = anomalous_tables.get(table, "OK")
-        style     = get_node_style(table, severity)
-        shape     = get_node_shape(table)
-        desc      = TABLE_DESCRIPTIONS.get(table, "")
+        style     = get_node_style(table, severity, source_tables, fact_tables, report_tables)
+        shape     = get_node_shape(table, source_tables, report_tables)
 
         # Build tooltip
         status_line = f"⚠️ ANOMALY DETECTED — {severity}" if severity != "OK" else "✅ Healthy"
-        tooltip = f"{table}\n{desc}\n\nStatus: {status_line}"
+        tooltip = f"{table}\n\nStatus: {status_line}"
 
         net.add_node(
             table,
@@ -180,7 +171,7 @@ def build_lineage_graph(anomalous_tables: dict) -> Network:
             shape     = shape,
             title     = tooltip,
             font      = {"color": style["font_color"], "size": 14, "bold": True},
-            size      = 30 if table in REPORTS else 25,
+            size      = 30 if table in report_tables else 25,
             borderWidth = 3 if severity != "OK" else 1,
         )
 

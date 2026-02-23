@@ -23,6 +23,7 @@ Usage:
 """
 
 import os
+import sys
 from datetime import datetime, date
 from dataclasses import dataclass, field
 
@@ -30,26 +31,12 @@ import duckdb
 import pandas as pd
 import numpy as np
 
-# ─── Config ───────────────────────────────────────────────────────────────────
-
-DB_PATH        = "data/warehouse.duckdb"
-SNAPSHOTS_DIR  = "data/snapshots"
-HISTORY_PATH   = "data/snapshots/anomaly_history.csv"
-
-TABLES_TO_MONITOR = [
-    "customers",
-    "products",
-    "orders",
-    "order_items",
-    "payments",
-    "events",
-]
-
-# How sensitive the detector is.
-# Lower = more alerts. Higher = fewer alerts.
-ZSCORE_THRESHOLD    = 3.0   # flag if metric is >3 std devs from rolling mean
-PCT_CHANGE_THRESHOLD = 0.20  # flag if row count changes >20% day-over-day
-MIN_HISTORY_DAYS    = 7     # need at least this many days of history to run Z-score
+# Add project root to path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from src.config import (
+    DB_PATH, TABLES, SNAPSHOTS_DIR, ANOMALY_PATH,
+    ZSCORE_THRESHOLD, PCT_CHANGE_THRESHOLD, MIN_HISTORY_DAYS,
+)
 
 
 # ─── Data classes ─────────────────────────────────────────────────────────────
@@ -299,14 +286,14 @@ def save_anomalies(anomalies: list[Anomaly]):
     ]
     new_df = pd.DataFrame(rows)
 
-    if os.path.exists(HISTORY_PATH):
-        existing = pd.read_csv(HISTORY_PATH)
+    if os.path.exists(ANOMALY_PATH):
+        existing = pd.read_csv(ANOMALY_PATH)
         combined = pd.concat([existing, new_df], ignore_index=True)
     else:
         combined = new_df
 
-    combined.to_csv(HISTORY_PATH, index=False)
-    print(f"\n  💾 Anomaly events saved → {HISTORY_PATH}")
+    combined.to_csv(ANOMALY_PATH, index=False)
+    print(f"\n  💾 Anomaly events saved → {ANOMALY_PATH}")
 
 
 # ─── Main runner ──────────────────────────────────────────────────────────────
@@ -320,13 +307,13 @@ def run_anomaly_detector(verbose: bool = True) -> list[Anomaly]:
     print("=" * 55)
     print(f"  Z-score threshold : >{ZSCORE_THRESHOLD}")
     print(f"  Min history days  : {MIN_HISTORY_DAYS}")
-    print(f"  Tables monitored  : {len(TABLES_TO_MONITOR)}")
+    print(f"  Tables monitored  : {len(TABLES)}")
     print()
 
     con = duckdb.connect(DB_PATH)
     all_anomalies = []
 
-    for table in TABLES_TO_MONITOR:
+    for table in TABLES:
 
         # Load historical baseline
         history_df = load_historical_metrics(table)
