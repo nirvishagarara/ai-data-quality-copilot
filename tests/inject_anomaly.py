@@ -17,13 +17,17 @@ After injecting, run your monitoring engine to watch it catch the problem.
 import argparse
 import shutil
 import os
+import sys
 
 import duckdb
 import pandas as pd
 import numpy as np
 
-DB_PATH   = "data/warehouse.duckdb"
-DB_BACKUP = "data/warehouse_backup.duckdb"
+# Add project root to path
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from src.config import DB_PATH
+
+DB_BACKUP = DB_PATH.replace(".duckdb", "_backup.duckdb")
 
 # ─── Scenarios ────────────────────────────────────────────────────────────────
 

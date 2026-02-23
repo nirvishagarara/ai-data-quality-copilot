@@ -42,14 +42,9 @@ load_dotenv()
 
 # Add project root to path so we can import our own modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from src.config import REPORTS_PATH as REPORTS_OUTPUT, LLM_MODEL as MODEL, LLM_MAX_TOKENS as MAX_TOKENS
 from src.monitoring.anomaly_detector import run_anomaly_detector, Anomaly
 from src.monitoring.schema_monitor import run_schema_monitor, SchemaDrift
-
-# ─── Config ───────────────────────────────────────────────────────────────────
-
-REPORTS_OUTPUT = "data/root_cause_reports.json"
-MODEL          = "claude-haiku-4-5"   # cheapest + fastest — perfect for this use case
-MAX_TOKENS     = 600                  # enough for a full explanation without wasting money
 
 # ─── Data class ───────────────────────────────────────────────────────────────
 

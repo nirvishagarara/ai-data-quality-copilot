@@ -14,6 +14,7 @@ Usage:
 """
 
 import os
+import sys
 import json
 from datetime import datetime
 from dataclasses import dataclass, field
@@ -21,20 +22,9 @@ from dataclasses import dataclass, field
 import duckdb
 import pandas as pd
 
-# ─── Config ───────────────────────────────────────────────────────────────────
-
-DB_PATH       = "data/warehouse.duckdb"
-BASELINE_PATH = "data/snapshots/schema_baseline.csv"
-HISTORY_PATH  = "data/snapshots/schema_history.csv"
-
-TABLES_TO_MONITOR = [
-    "customers",
-    "products",
-    "orders",
-    "order_items",
-    "payments",
-    "events",
-]
+# Add project root to path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from src.config import DB_PATH, TABLES, BASELINE_PATH, SCHEMA_PATH
 
 # ─── Data classes ─────────────────────────────────────────────────────────────
 
@@ -162,14 +152,14 @@ def save_to_history(all_drifts: list[SchemaDrift]):
     ]
     new_df = pd.DataFrame(rows)
 
-    if os.path.exists(HISTORY_PATH):
-        existing = pd.read_csv(HISTORY_PATH)
+    if os.path.exists(SCHEMA_PATH):
+        existing = pd.read_csv(SCHEMA_PATH)
         combined = pd.concat([existing, new_df], ignore_index=True)
     else:
         combined = new_df
 
-    combined.to_csv(HISTORY_PATH, index=False)
-    print(f"\n  💾 Drift events saved → {HISTORY_PATH}")
+    combined.to_csv(SCHEMA_PATH, index=False)
+    print(f"\n  💾 Drift events saved → {SCHEMA_PATH}")
 
 
 def update_baseline(con: duckdb.DuckDBPyConnection):
@@ -178,7 +168,7 @@ def update_baseline(con: duckdb.DuckDBPyConnection):
     Call this AFTER a drift has been acknowledged and fixed.
     """
     rows = []
-    for table in TABLES_TO_MONITOR:
+    for table in TABLES:
         schema = get_current_schema(con, table)
         for col, dtype in schema.items():
             rows.append({
@@ -205,7 +195,7 @@ def run_schema_monitor(verbose: bool = True) -> list[SchemaDrift]:
     con = duckdb.connect(DB_PATH)
     all_drifts = []
 
-    for table in TABLES_TO_MONITOR:
+    for table in TABLES:
         baseline = load_baseline_schema(table)
         current  = get_current_schema(con, table)
 

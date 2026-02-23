@@ -8,6 +8,9 @@ faker
 scikit-learn
 scipy
 
+# Config
+pyyaml
+
 # LLM
 anthropic
 python-dotenv
@@ -17,13 +20,8 @@ requests
 networkx
 pyvis
 
-# API & frontend
-fastapi
-uvicorn
-streamlit
+# Frontend
+streamlit>=1.30.0
 
 # Testing
 pytest
-
-# Notebooks
-jupyter

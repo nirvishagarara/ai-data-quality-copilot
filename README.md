@@ -1,40 +1,89 @@
-# 🚀 AI-Powered Data Quality Copilot
+# Data Quality Copilot
 
-> **"ChatGPT for broken data pipelines"** — monitors tables, detects anomalies automatically, and uses an LLM to explain WHY something broke and how to fix it.
-
-![Architecture](architecture.svg)
+**AI-powered data observability for DuckDB.** Monitor any warehouse for schema drift, statistical anomalies, and data quality issues — then let Claude AI explain what broke and how to fix it.
 
 ---
 
-## The Problem
+## What It Does
 
-Pipelines break silently. Bad data flows downstream. Nobody knows until dashboards are wrong — and by then, business decisions have already been made on corrupt data.
-
-Tools like dbt and Airflow give you logs and basic tests, but engineers still spend hours manually tracing root causes.
-
-## The Solution
-
-An AI copilot that:
-- Monitors your tables daily for schema drift and statistical anomalies
-- Automatically generates data quality tests from historical patterns
-- Uses Claude AI to explain root causes in plain English
-- Sends colour-coded Slack alerts with fix suggestions
-- Visualises pipeline dependencies with an interactive lineage graph
+- **Schema drift detection** — catches renamed, dropped, or type-changed columns
+- **Anomaly detection** — Z-score based monitoring on null %, row count, mean, and std dev
+- **Auto test generation** — generates dbt-compatible data quality tests from 30-day profiles
+- **LLM root-cause analysis** — sends anomaly context to Claude AI for plain-English explanations
+- **Slack alerts** — colour-coded severity alerts with fix suggestions
+- **Lineage graph** — interactive HTML graph with anomalous nodes highlighted
+- **Streamlit dashboard** — full UI for exploring all of the above
 
 ---
 
-## Demo
+## Quick Start
 
-**Inject a failure → detect it → explain it → alert:**
+### 1. Install
 
 ```bash
-python tests/inject_anomaly.py --scenario null_spike
-python src/llm/root_cause_analyzer.py
-python src/alerts/slack_alerts.py
-python tests/inject_anomaly.py --reset
+git clone https://github.com/nirvishagarara/ai-data-quality-copilot
+cd ai-data-quality-copilot
+
+python -m venv venv
+source venv/bin/activate        # Mac/Linux
+# venv\Scripts\activate         # Windows
+
+pip install -r requirements.txt
 ```
 
-**Example LLM output:**
+### 2. Configure
+
+```bash
+cp .env.example .env
+# Edit .env → add your ANTHROPIC_API_KEY
+```
+
+Edit `dq_config.yaml` to point at your DuckDB database and list your tables:
+
+```yaml
+database:
+  path: path/to/your/warehouse.duckdb
+
+tables:
+  - users
+  - orders
+  - payments
+```
+
+### 3. Run
+
+```bash
+python dq_copilot.py scan          # detect schema drift + anomalies
+python dq_copilot.py explain       # LLM root-cause analysis
+python dq_copilot.py dashboard     # launch Streamlit UI
+```
+
+---
+
+## Try With Demo Data
+
+Don't have a DuckDB warehouse yet? Generate a synthetic e-commerce one:
+
+```bash
+python data/generate_data.py       # creates warehouse + 90 days of baselines
+python dq_copilot.py full          # run the entire pipeline
+python dq_copilot.py dashboard     # explore results in the UI
+```
+
+### Inject Anomalies (for testing)
+
+```bash
+python tests/inject_anomaly.py --list                    # see all scenarios
+python tests/inject_anomaly.py --scenario null_spike     # inject a failure
+python dq_copilot.py explain                             # watch it get caught
+python tests/inject_anomaly.py --reset                   # restore clean data
+```
+
+Available scenarios: `schema_drift`, `null_spike`, `row_drop`, `distribution_shift`, `new_bad_values`, `duplicate_rows`
+
+---
+
+## Example LLM Output
 
 ```
 🔴 [CRITICAL] payments.amount — null_pct
@@ -59,93 +108,57 @@ python tests/inject_anomaly.py --reset
 
 ---
 
-## Features
+## CLI Commands
 
-| Feature | Description |
+| Command | Description |
 |---|---|
-| Schema drift detection | Catches renamed, dropped, or type-changed columns |
-| Anomaly detection | Z-score + absolute threshold on null %, row count, mean, std |
-| Auto test generator | Generates 93 dbt-compatible tests from 30-day data profiles |
-| LLM root-cause engine | Claude API with multi-context prompts — anomaly + schema drift |
-| Slack alerts | Colour-coded severity alerts with fix suggestions |
-| Lineage graph | Interactive HTML graph, anomalous nodes highlighted in red |
+| `python dq_copilot.py init` | Create a starter `dq_config.yaml` |
+| `python dq_copilot.py scan` | Run schema monitor + anomaly detector |
+| `python dq_copilot.py explain` | Run LLM root-cause analyzer |
+| `python dq_copilot.py test` | Generate data quality tests |
+| `python dq_copilot.py alert` | Send Slack alerts |
+| `python dq_copilot.py lineage` | Build interactive lineage graph |
+| `python dq_copilot.py dashboard` | Launch Streamlit dashboard |
+| `python dq_copilot.py full` | Run entire pipeline end-to-end |
 
 ---
 
-## Quick Start
+## Configuration
 
-### 1. Clone and set up environment
+All settings live in `dq_config.yaml`:
 
-```bash
-git clone https://github.com/yourusername/data-quality-copilot
-cd data-quality-copilot
+| Section | Default | Description |
+|---|---|---|
+| `database.path` | `data/warehouse.duckdb` | Path to your DuckDB file |
+| `tables` | (demo tables) | List of table names to monitor |
+| `llm.model` | `claude-haiku-4-5` | Claude model to use |
+| `llm.max_tokens` | `600` | Max tokens per LLM response |
+| `anomaly_detection.zscore_threshold` | `3.0` | Flag metrics > N std devs |
+| `anomaly_detection.pct_change_threshold` | `0.20` | Flag metrics changed > 20% |
+| `anomaly_detection.min_history_days` | `7` | Min days of history needed |
+| `lineage.edges` | (demo edges) | Pipeline dependency graph |
 
-python -m venv venv
-source venv/bin/activate        # Mac/Linux
-venv\Scripts\activate           # Windows
+See [`dq_config.yaml`](dq_config.yaml) for the full list with comments.
 
-pip install -r requirements.txt
-```
+### Environment Variables
 
-### 2. Add your API keys
-
-Create a `.env` file in the project root:
-
-```
-ANTHROPIC_API_KEY=your_key_here
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/XXX/YYY/ZZZ
-```
-
-Get your Anthropic API key at [console.anthropic.com](https://console.anthropic.com).
-Get your Slack webhook at [api.slack.com/apps](https://api.slack.com/apps).
-
-### 3. Generate the warehouse
-
-```bash
-python data/generate_data.py
-```
-
-This creates `data/warehouse.duckdb` with 6 tables and ~120k rows of synthetic e-commerce data, plus 90 days of metric snapshots.
-
-### 4. Run the monitoring engine
-
-```bash
-# Schema monitor
-python src/monitoring/schema_monitor.py
-
-# Anomaly detector
-python src/monitoring/anomaly_detector.py
-
-# Auto test generator
-python src/monitoring/test_generator.py
-```
-
-### 5. Run the full AI pipeline
-
-```bash
-python src/llm/root_cause_analyzer.py
-python src/alerts/slack_alerts.py
-python src/lineage/lineage_graph.py
-open data/lineage_graph.html
-```
+| Variable | Required | Description |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | For `explain` command | Claude API key ([get one](https://console.anthropic.com)) |
+| `SLACK_WEBHOOK_URL` | For `alert` command | Slack incoming webhook URL |
 
 ---
 
-## Anomaly Injection (Demo & Testing)
+## How It Works
 
-Inject realistic pipeline failures to test the monitoring engine:
-
-```bash
-python tests/inject_anomaly.py --list               # see all scenarios
-
-python tests/inject_anomaly.py --scenario schema_drift        # renames order_status → status
-python tests/inject_anomaly.py --scenario null_spike          # 45% of payment amounts go null
-python tests/inject_anomaly.py --scenario row_drop            # 35% of orders deleted
-python tests/inject_anomaly.py --scenario distribution_shift  # order totals triple
-python tests/inject_anomaly.py --scenario new_bad_values      # unknown product categories
-python tests/inject_anomaly.py --scenario duplicate_rows      # 20% of items duplicated
-
-python tests/inject_anomaly.py --reset              # restore clean data
+```
+1. Schema monitor compares live schema to saved baseline → flags drift
+2. Anomaly detector runs Z-score on daily metrics → flags statistical anomalies
+3. Root-cause analyzer sends anomaly + drift context to Claude API
+4. Claude returns structured JSON: explanation + root_cause + fixes + severity
+5. Slack alerts sends formatted messages to your channel
+6. Lineage graph renders interactive HTML with anomalous nodes in red
+7. Test generator profiles tables and outputs dbt-compatible YAML tests
 ```
 
 ---
@@ -154,28 +167,30 @@ python tests/inject_anomaly.py --reset              # restore clean data
 
 ```
 data-quality-copilot/
+├── dq_copilot.py               # CLI entry point
+├── dq_config.yaml              # configuration (edit this)
 ├── data/
-│   ├── generate_data.py          # synthetic warehouse generator
-│   ├── warehouse.duckdb          # DuckDB database (gitignored)
-│   └── snapshots/                # daily metric baselines + drift history
+│   ├── generate_data.py        # synthetic warehouse generator (demo)
+│   └── snapshots/              # daily metric baselines
 ├── src/
+│   ├── config.py               # central config loader
 │   ├── monitoring/
-│   │   ├── schema_monitor.py     # schema drift detection
-│   │   ├── anomaly_detector.py   # statistical anomaly detection
-│   │   └── test_generator.py     # auto data quality test generation
+│   │   ├── schema_monitor.py   # schema drift detection
+│   │   ├── anomaly_detector.py # statistical anomaly detection
+│   │   └── test_generator.py   # auto test generation
 │   ├── llm/
-│   │   └── root_cause_analyzer.py # Claude API root-cause engine
+│   │   └── root_cause_analyzer.py  # Claude AI root-cause engine
 │   ├── alerts/
-│   │   └── slack_alerts.py       # Slack webhook alerts
-│   ├── lineage/
-│   │   └── lineage_graph.py      # interactive pipeline lineage graph
-│   └── api/                      # FastAPI backend (Phase 5)
-├── frontend/                     # Streamlit dashboard (Phase 5)
+│   │   └── slack_alerts.py     # Slack webhook alerts
+│   └── lineage/
+│       └── lineage_graph.py    # interactive pipeline graph
+├── frontend/
+│   └── app.py                  # Streamlit dashboard
 ├── tests/
-│   └── inject_anomaly.py         # anomaly injection for demos + testing
-├── .env                          # API keys (never commit this)
-├── .gitignore
-└── requirements.txt
+│   └── inject_anomaly.py       # anomaly injection for testing
+├── .env.example                # environment variable template
+├── requirements.txt
+└── LICENSE                     # MIT
 ```
 
 ---
@@ -186,45 +201,15 @@ data-quality-copilot/
 |---|---|
 | Data warehouse | DuckDB |
 | Data processing | Python, Pandas, NumPy |
-| Anomaly detection | Scipy (Z-score), custom thresholds |
-| LLM | Anthropic Claude Haiku |
+| Anomaly detection | Z-score (SciPy), custom thresholds |
+| LLM | Anthropic Claude API |
 | Alerts | Slack Incoming Webhooks |
 | Lineage graph | NetworkX, Pyvis |
-| API | FastAPI (Phase 5) |
-| Dashboard | Streamlit (Phase 5) |
+| Dashboard | Streamlit |
 | Testing | Pytest |
 
 ---
 
-## How It Works
+## License
 
-```
-1. generate_data.py creates warehouse + saves 90-day metric baselines
-2. schema_monitor.py compares live schema to baseline → flags drift
-3. anomaly_detector.py runs Z-score on metrics → flags statistical anomalies
-4. root_cause_analyzer.py sends anomaly + drift context to Claude API
-5. Claude returns structured JSON: explanation + root_cause + fixes
-6. slack_alerts.py formats and sends to your Slack channel
-7. lineage_graph.py renders interactive graph with anomalous nodes in red
-```
-
----
-
-## Roadmap
-
-- [x] Phase 1 — Environment + synthetic data warehouse
-- [x] Phase 2 — Schema monitor + anomaly detector + test generator
-- [x] Phase 3 — LLM root-cause engine (Claude API)
-- [x] Phase 4 — Slack alerts + lineage graph
-- [ ] Phase 5 — FastAPI backend + Streamlit dashboard
-- [ ] Phase 6 — Integration tests + deployment
-
----
-
-## Resume Bullet
-
-> Built an AI-powered data observability platform monitoring 6 tables daily across schema drift, statistical anomalies (Z-score + absolute thresholds), and data quality tests; integrated Claude API with multi-context prompt engineering to generate plain-English root-cause explanations and fix suggestions; deployed Slack alerting and an interactive lineage graph with real-time anomaly highlighting.
-
----
-
-*Built with Python · DuckDB · Anthropic Claude · Scikit-learn · NetworkX · Pyvis*
+MIT — see [LICENSE](LICENSE).

@@ -1,0 +1,65 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# dq_config.yaml — Data Quality Copilot Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+# Copy this file and edit for your own DuckDB warehouse.
+# All paths are relative to where you run the tool from.
+
+# ─── Database ────────────────────────────────────────────────────────────────
+database:
+  path: data/warehouse.duckdb          # path to your DuckDB file
+
+# ─── Tables to Monitor ──────────────────────────────────────────────────────
+# The tool auto-discovers columns within each table.
+# Just list the table names you want monitored.
+tables:
+  - customers
+  - products
+  - orders
+  - order_items
+  - payments
+  - events
+
+# ─── Storage ────────────────────────────────────────────────────────────────
+snapshots_dir: data/snapshots          # daily metric baselines + drift history
+
+outputs:
+  reports: data/root_cause_reports.json
+  tests_json: data/generated_tests.json
+  tests_yaml: data/generated_tests.yaml
+  lineage_html: data/lineage_graph.html
+
+# ─── LLM Settings ───────────────────────────────────────────────────────────
+# Requires ANTHROPIC_API_KEY in your .env file
+llm:
+  model: claude-haiku-4-5              # cheapest + fastest Claude model
+  max_tokens: 600
+
+# ─── Anomaly Detection Thresholds ───────────────────────────────────────────
+anomaly_detection:
+  zscore_threshold: 3.0                # flag metrics > 3 standard deviations
+  pct_change_threshold: 0.20           # flag metrics changed > 20% from baseline
+  min_history_days: 7                  # need at least 7 days of history
+
+# ─── Test Generation Thresholds ─────────────────────────────────────────────
+test_generation:
+  null_tolerance: 0.01                 # columns with <1% nulls get a not_null test
+  unique_tolerance: 0.99               # columns with >99% unique get a unique test
+  max_cardinality: 20                  # columns with <=20 values get accepted_values
+  row_count_buffer: 0.20               # row count ±20% of historical mean
+  value_buffer: 0.25                   # numeric range ±25% of historical min/max
+
+# ─── Pipeline Lineage ───────────────────────────────────────────────────────
+# Optional: define how your tables connect for the lineage graph.
+# Format: list of {source, target, label}
+lineage:
+  edges:
+    - {source: customers, target: orders, label: customer_id}
+    - {source: products, target: order_items, label: product_id}
+    - {source: orders, target: order_items, label: order_id}
+    - {source: orders, target: payments, label: order_id}
+    - {source: order_items, target: orders, label: aggregates to}
+    - {source: customers, target: events, label: customer_id}
+    - {source: orders, target: revenue_report, label: feeds}
+    - {source: payments, target: revenue_report, label: feeds}
+    - {source: order_items, target: revenue_report, label: feeds}
+    - {source: events, target: behaviour_report, label: feeds}
