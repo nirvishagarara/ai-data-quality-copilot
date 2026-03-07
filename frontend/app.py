@@ -730,7 +730,7 @@ with st.sidebar:
     page = st.radio(
         "Navigate",
         ["📊 Dashboard", "🚨 Anomalies", "📐 Schema Monitor",
-         "🧪 Tests", "🗺️ Lineage Graph", "▶️ Run Pipeline"],
+         "🧪 Tests", "🗺️ Lineage Graph", "▶️ Run Pipeline", "❓ Help"],
         label_visibility="collapsed"
     )
 
@@ -1169,3 +1169,168 @@ python src/lineage/lineage_graph.py
 # Reset when done:
 python tests/inject_anomaly.py --reset
 """, language="bash")
+
+
+# ══════════════════════════════════════════════════════════
+# PAGE 7 — HELP
+# ══════════════════════════════════════════════════════════
+
+elif page == "❓ Help":
+
+    st.markdown("""
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1>How to Use This Dashboard</h1>
+            <p class="page-sub">A quick guide to every page and feature.</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── Getting Started ──
+    st.markdown('<div class="section-title">Getting Started</div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="card" style="margin-bottom:20px;">
+        <p style="color:#334155;font-size:0.9rem;line-height:1.7;">
+            This dashboard monitors your DuckDB warehouse for data quality issues.
+            It detects <strong>schema drift</strong> (renamed/dropped columns),
+            <strong>statistical anomalies</strong> (Z-score based), and auto-generates
+            <strong>data quality tests</strong>. When issues are found, it uses
+            <strong>Claude AI</strong> to explain what broke and suggest fixes.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="section-title">Typical Workflow</div>', unsafe_allow_html=True)
+
+    steps = [
+        ("1", "Check Dashboard", "Start here. Review KPI cards for a quick health check — tables monitored, anomalies detected, schema drift events, and tests generated."),
+        ("2", "Run Pipeline", "Go to <strong>Run Pipeline</strong> and click <strong>Run Full Pipeline</strong>. This scans all tables for schema drift and statistical anomalies, then sends the results to Claude AI for root-cause analysis."),
+        ("3", "Review Anomalies", "Head to <strong>Anomalies</strong> to see what was found. Each anomaly card shows severity, a plain-English explanation, the likely root cause, and 2-3 concrete fix suggestions."),
+        ("4", "Check Schema", "Visit <strong>Schema Monitor</strong> to see if any columns were renamed, dropped, or had their type changed. Select a table from the dropdown to inspect."),
+        ("5", "View Tests", "The <strong>Tests</strong> page shows auto-generated data quality rules based on 30 days of historical data — not_null, unique, accepted_values, row_count, and value_between checks."),
+        ("6", "Explore Lineage", "Open <strong>Lineage Graph</strong> to see how your tables connect. Anomalous nodes are highlighted in red/orange. Hover for details."),
+    ]
+
+    for num, title, desc in steps:
+        st.markdown(f"""
+        <div class="card" style="margin-bottom:12px;">
+            <div style="display:flex;gap:14px;align-items:flex-start;">
+                <div style="background:#2563eb;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;flex-shrink:0;">{num}</div>
+                <div>
+                    <div style="font-weight:600;color:#0f172a;font-size:0.9rem;margin-bottom:4px;">{title}</div>
+                    <div style="color:#475569;font-size:0.85rem;line-height:1.6;">{desc}</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ── Page Reference ──
+    st.markdown("---")
+    st.markdown('<div class="section-title">Page Reference</div>', unsafe_allow_html=True)
+
+    pages_info = [
+        ("📊 Dashboard", "Your home page. Shows KPI summary cards (tables monitored, anomalies, schema drift events, tests generated, reports) and a table overview with row/column counts."),
+        ("🚨 Anomalies", "Deep-dive into every detected anomaly. Each card shows severity (CRITICAL/HIGH/MEDIUM/LOW), the affected table.column, LLM-generated explanation, root cause, and suggested fixes."),
+        ("📐 Schema Monitor", "Shows the current schema (columns + types) for each table. Displays drift history — columns added, dropped, or type-changed compared to the saved baseline."),
+        ("🧪 Tests", "Auto-generated data quality tests from 30-day historical profiles. Test types: not_null, unique, accepted_values, row_count_between, value_between. Exportable as dbt-compatible YAML."),
+        ("🗺️ Lineage Graph", "Interactive pipeline visualization. Blue = source tables, Green = fact tables, Purple = reports/dashboards. Anomalous nodes are highlighted in red/orange/yellow. Hover for details, drag to rearrange."),
+        ("▶️ Run Pipeline", "Trigger monitoring from the UI. Options: Run Schema Monitor only, Run Anomaly Detector only, or Run Full Pipeline (detect + LLM explain + Slack alert)."),
+    ]
+
+    for page_name, page_desc in pages_info:
+        st.markdown(f"""
+        <div class="card" style="margin-bottom:10px;">
+            <div style="font-weight:600;color:#0f172a;font-size:0.9rem;margin-bottom:4px;">{page_name}</div>
+            <div style="color:#475569;font-size:0.85rem;line-height:1.6;">{page_desc}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ── Severity Levels ──
+    st.markdown("---")
+    st.markdown('<div class="section-title">Severity Levels</div>', unsafe_allow_html=True)
+
+    severities = [
+        ("CRITICAL", "#dc2626", "#fef2f2", "Immediate action needed. Examples: 45% nulls in a key column, column dropped from schema, 50%+ row count drop."),
+        ("HIGH", "#ea580c", "#fff7ed", "Investigate soon. Examples: type changed on existing column, mean shifted 20%+, unexpected null increase."),
+        ("MEDIUM", "#d97706", "#fffbeb", "Worth monitoring. Examples: Z-score between 3-5, minor distribution shift, new unknown category values."),
+        ("LOW", "#16a34a", "#f0fdf4", "Informational. Examples: new column added to schema, minor metric fluctuation within expected range."),
+    ]
+
+    cols = st.columns(4)
+    for i, (level, color, bg, desc) in enumerate(severities):
+        with cols[i]:
+            st.markdown(f"""
+            <div style="background:{bg};border:1px solid {color}22;border-radius:10px;padding:14px;height:100%;">
+                <span style="background:{color};color:white;padding:2px 10px;border-radius:6px;font-size:0.75rem;font-weight:700;">{level}</span>
+                <p style="color:#475569;font-size:0.8rem;margin-top:10px;line-height:1.5;">{desc}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # ── CLI Commands ──
+    st.markdown("---")
+    st.markdown('<div class="section-title">CLI Commands</div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="card">
+        <p style="color:#475569;font-size:0.85rem;margin-bottom:12px;">
+            You can also run everything from the command line:
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.code("""python dq_copilot.py scan          # detect schema drift + anomalies
+python dq_copilot.py explain       # LLM root-cause analysis
+python dq_copilot.py test          # generate data quality tests
+python dq_copilot.py alert         # send Slack alerts
+python dq_copilot.py lineage       # build lineage graph
+python dq_copilot.py dashboard     # launch this dashboard
+python dq_copilot.py full          # run entire pipeline end-to-end""", language="bash")
+
+    # ── Configuration ──
+    st.markdown("---")
+    st.markdown('<div class="section-title">Configuration</div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="card">
+        <p style="color:#475569;font-size:0.85rem;line-height:1.7;">
+            All settings are in <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">dq_config.yaml</code>.
+            Point it at your own DuckDB database, list your tables, and adjust thresholds:
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.code("""database:
+  path: path/to/your/warehouse.duckdb
+
+tables:
+  - users
+  - orders
+  - payments
+
+anomaly_detection:
+  zscore_threshold: 3.0
+  pct_change_threshold: 0.20""", language="yaml")
+
+    st.markdown("""
+    <div class="card" style="margin-top:16px;">
+        <p style="color:#475569;font-size:0.85rem;line-height:1.7;">
+            <strong>Environment variables</strong> (set in <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">.env</code>):
+        </p>
+        <ul style="color:#475569;font-size:0.85rem;line-height:2;">
+            <li><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">ANTHROPIC_API_KEY</code> — required for LLM root-cause analysis</li>
+            <li><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">SLACK_WEBHOOK_URL</code> — optional, for Slack alerts</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── Footer ──
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align:center;padding:20px 0;">
+        <p style="color:#94a3b8;font-size:0.8rem;">
+            Built with Python, DuckDB, Anthropic Claude API, and Streamlit<br/>
+            <a href="https://github.com/nirvishagarara/ai-data-quality-copilot" target="_blank" style="color:#2563eb;text-decoration:none;">View on GitHub</a>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
